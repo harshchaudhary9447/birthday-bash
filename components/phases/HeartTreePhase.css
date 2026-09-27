@@ -1,0 +1,230 @@
+.heart-tree-scene {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: 10;
+}
+
+/* Warm, glowing peach backlight */
+.perfect-tree-glow {
+  position: absolute;
+  top: 40%;
+  left: 65%;
+  transform: translate(-50%, -50%);
+  width: 100vmin;
+  height: 100vmin;
+  background: radial-gradient(circle, rgba(255, 245, 230, 0.95) 0%, rgba(255, 235, 220, 0.4) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.heart-tree-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 5;
+}
+
+/* --- Text Block Soft Fade --- */
+.heart-tree-text {
+  flex: 0 0 auto;
+  position: absolute;
+  left: 0;
+  top: 50%; 
+  transform: translateY(-40%);
+  /* Mimicking the soft, wide, fading off-white mask from left to right */
+  background: linear-gradient(
+    to right, 
+    rgba(254, 248, 244, 0.95) 0%, 
+    rgba(254, 248, 244, 0.95) 40%,
+    rgba(254, 248, 244, 0.7) 60%, 
+    rgba(254, 248, 244, 0) 100%
+  );
+  padding: 8vh 15vw 8vh 6vw; 
+  z-index: 20;
+}
+
+.heart-tree-text .script,
+.heart-tree-text h1,
+.heart-tree-text p {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.heart-tree-text.active .script {
+  font-family: var(--font-caveat), "Caveat", cursive;
+  font-size: 2.1rem;
+  color: #a36173; 
+  display: block;
+  margin-bottom: 5px;
+  animation: slideTextPerfect 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.8s;
+}
+
+.heart-tree-text.active h1 {
+  font-family: var(--font-fredoka), "Fredoka One", "Quicksand", sans-serif;
+  font-size: 4.2rem;
+  line-height: 1.1;
+  color: #db3a6e; 
+  margin: 0 0 15px 0;
+  letter-spacing: -1.5px;
+  text-shadow: 2px 2px 8px rgba(219, 58, 110, 0.25), 0px 4px 15px rgba(219, 58, 110, 0.15);
+  animation: slideTextPerfect 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 1.1s;
+}
+
+.heart-tree-text.active p {
+  font-family: var(--font-inter), "Inter", sans-serif;
+  font-size: 1.25rem;
+  color: #63434d;
+  font-style: italic;
+  font-weight: 500;
+  margin: 0;
+  animation: slideTextPerfect 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 1.4s;
+}
+
+@keyframes slideTextPerfect {
+  0% { opacity: 0; transform: translateX(-15px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Visual Tree SVG Area --- */
+.heart-tree-visual {
+  position: absolute;
+  /* Making sure trunk touches the exact bottom of the screen */
+  bottom: 0;
+  left: 65%;
+  transform: translateX(-50%);
+  
+  /* Hardcode actual SVG boundaries so px coordinates perfectly align! */
+  width: 500px;
+  height: 650px;
+  
+  /* Scale safely instead of messing coordinates */
+  transform-origin: bottom left; /* So we only have to adjust scale on smaller screens without risking layout breaking */
+  z-index: 5;
+}
+
+/* Bare branches SVG */
+.bare-branches-svg {
+  position: absolute;
+  bottom: 0; /* Align to the bottom of the visual container */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.t-path {
+  stroke-dasharray: 1200; 
+  stroke-dashoffset: 1200;
+  will-change: stroke-dashoffset;
+}
+
+/* 
+  Ultra-smooth continuous drawing of the branches 
+  'linear' bezier gives the exact "drawn slowly by pen" look
+*/
+.heart-tree-visual.growing .p-trunk { animation: treeDraw 1s linear forwards; animation-delay: 0.1s; }
+.heart-tree-visual.growing .p-b1, .heart-tree-visual.growing .p-b2 { animation: treeDraw 1.2s linear forwards; animation-delay: 1.1s; }
+.heart-tree-visual.growing .p-s1, .heart-tree-visual.growing .p-s2, .heart-tree-visual.growing .p-s3 { animation: treeDraw 1.4s linear forwards; animation-delay: 2.3s; }
+
+@keyframes treeDraw {
+  0% { stroke-dashoffset: 1200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* --- Tiny Smooth Leaves Canopy (SS2) --- */
+.lush-canopy {
+  position: absolute;
+  /* Leaves directly map pixel for pixel inside the 500x650 bounds */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.small-tree-heart {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  transform-origin: bottom center;
+  transform: translate3d(-50%, -50%, 0) scale(0);
+  will-change: transform;
+}
+
+/* Smooth popping for all the small leaves AFTER branches exist */
+.heart-tree-visual.growing .small-tree-heart {
+  animation: popTinyGlossy 0.6s cubic-bezier(0.34, 1.56, 0.5, 1.1) forwards;
+  animation-delay: calc(var(--delay));
+}
+
+@keyframes popTinyGlossy {
+  0% { transform: translate3d(-50%, -50%, 0) scale(0); }
+  100% { transform: translate3d(-50%, -50%, 0) scale(1.05); } /* Give it a tiny extra puff */
+}
+
+/* Responsive constraints */
+@media (max-width: 900px) {
+  .heart-tree-text {
+    top: auto;
+    bottom: 80px;
+    transform: none;
+    padding: 30px;
+    background: linear-gradient(to top, rgba(254, 248, 244, 0.95) 0%, rgba(254, 248, 244, 0.95) 60%, rgba(254, 248, 244, 0) 100%);
+    width: 100%;
+    margin-top: auto;
+  }
+  .heart-tree-visual {
+    left: 50%;
+    transform: translateX(-50%) scale(0.65);
+    bottom: 0;
+  }
+}
+
+/* --- Delicate Atmospheric Falling Leaves from the Canopy --- */
+.ambient-leaves {
+  position: absolute;
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+  pointer-events: none;
+}
+
+.falling-leaf {
+  position: absolute;
+  top: 250px; 
+  width: var(--size);
+  height: var(--size);
+  opacity: 0;
+  will-change: transform, opacity;
+  transform: translate3d(0,0,0);
+}
+
+.heart-tree-visual.growing .falling-leaf {
+  /* Infinite linear looping drop */
+  animation: leafDropLoop var(--float-dur) linear infinite;
+  animation-delay: calc(4s + var(--float-del)); 
+}
+
+@keyframes leafDropLoop {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.9; }        /* Fade in quickly */
+  70% { opacity: 0.8; }
+  85% { opacity: 0; }          /* Fade out before hitting the very bottom */
+  100% { transform: translate3d(var(--drift), 400px, 0) rotate(180deg); opacity: 0; }
+}

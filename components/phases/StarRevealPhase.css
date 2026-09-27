@@ -1,0 +1,286 @@
+.star-reveal-page {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 10;
+  background: radial-gradient(circle at center, #3a1c28 0%, #150910 100%);
+}
+
+.sr-gradient-bg {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1; /* Behind everything */
+}
+.sr-ambient-part {
+  position: absolute;
+  animation: sr-float-ambient infinite linear;
+}
+.sr-ambient-part.rect {
+  background: #ffb3c6;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+.sr-ambient-part.circle {
+  background: #fcebb6;
+  border-radius: 50%;
+}
+.sr-ambient-part.star {
+  background: #fdf5f7;
+  clip-path: polygon(50% 0%, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0% 50%, 40% 40%);
+}
+
+@keyframes sr-float-ambient {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-80px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* Typography styles matching the dark starry reference */
+.sr-header-area {
+  text-align: center;
+  color: #fff;
+  z-index: 5;
+  margin-bottom: 2rem;
+  transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
+  padding: 0 20px;
+}
+.sr-header-area h1 {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 2.2rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.sr-header-area h1.complete {
+  transform: scale(1.08);
+  color: #fccb6c;
+  text-shadow: 0 4px 25px rgba(252, 203, 108, 0.6);
+}
+.sr-subheading {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.02em;
+}
+
+/* Constellation Sky */
+.sr-sky-area {
+  position: absolute;
+  top: 25vh;
+  left: 0;
+  width: 100%;
+  height: 40vh; /* Upper half mapping area */
+  pointer-events: none;
+  z-index: 2;
+}
+
+.sr-star-wrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  animation: star-zig-zag 6s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+.sr-star-wrapper.tapped {
+  animation-play-state: paused;
+}
+
+@keyframes star-zig-zag {
+  0% { transform: translate(-50%, -50%) translate(0, 0); }
+  25% { transform: translate(-50%, -50%) translate(8px, -12px); }
+  50% { transform: translate(-50%, -50%) translate(-6px, 8px); }
+  75% { transform: translate(-50%, -50%) translate(-10px, -6px); }
+  100% { transform: translate(-50%, -50%) translate(0, 0); }
+}
+
+/* Idle Twinkle animation */
+.sr-star-btn {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 20px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--accent); /* Natively matches the reason color! */
+  font-size: 3.5rem; 
+  text-shadow: 0 0 25px var(--accent), 0 0 50px var(--accent);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+  animation: star-pulsate 3.5s infinite alternate ease-in-out;
+  animation-delay: var(--delay);
+}
+/* Focus/Hover states mapped to tap feedback nicely */
+.sr-star-btn:hover, .sr-star-btn:focus-visible {
+  transform: scale(1.3) !important;
+  text-shadow: 0 0 35px var(--accent), 0 0 60px #fff;
+}
+@keyframes star-pulsate {
+  0% { transform: scale(0.85); opacity: 0.8; }
+  100% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Tapped State */
+.sr-star-wrapper.tapped .sr-star-btn {
+  pointer-events: none;
+  animation: star-tapped-flow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes star-tapped-flow {
+  0% { transform: scale(1.3) rotate(0deg); filter: brightness(1.5); color: #fff; }
+  35% { transform: scale(0.3) rotate(90deg); opacity: 1; color: var(--accent); }
+  100% { transform: scale(0.5) rotate(180deg); opacity: 0.4; filter: grayscale(0.5); }
+}
+
+/* The visual string connecting down */
+.sr-thread {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  width: 1.5px;
+  height: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, transparent 100%);
+  transform: translateX(-50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: height 1s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s;
+}
+.sr-star-wrapper.tapped .sr-thread {
+  height: 250px;
+  opacity: 1;
+}
+
+/* Plentiful Confetti drop on tap */
+.sr-confetti-drop {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+.sr-cnf-piece {
+  position: absolute;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0;
+  transform-origin: center;
+  animation: cnf-explode 0.6s cubic-bezier(0.1, 1, 0.3, 1) forwards;
+}
+
+/* Randomize confetti angles and colors dynamically */
+.sr-cnf-piece:nth-child(even) { background: #fff; width: 6px; height: 12px; border-radius: 2px; }
+.sr-cnf-piece:nth-child(3n) { background: #fccb6c; width: 5px; height: 5px; }
+
+@keyframes cnf-explode {
+  0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  60% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.4) rotate(var(--rot)); }
+}
+
+/* The flowing vertical stack */
+.sr-cards-stack {
+  position: relative;
+  z-index: 3;
+  margin-top: 15vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 90%;
+  max-width: 520px;
+  padding-bottom: 6rem;
+}
+
+.sr-reason-card {
+  position: relative;
+  background: rgba(35, 20, 35, 0.55);
+  border: 1px solid var(--accent);
+  border-radius: 14px;
+  padding: 18px 24px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.04);
+  opacity: 0;
+  transform: translateY(40px) scale(0.95);
+  animation: card-appear 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes card-appear {
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sr-card-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+}
+.sr-heart {
+  font-size: 0.9rem;
+}
+
+.sr-card-text {
+  font-size: 1.2rem;
+  color: #fff;
+  font-weight: 600;
+  line-height: 1.4;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.sr-sparkle {
+  color: var(--accent);
+  font-size: 1.3rem;
+  opacity: 0.9;
+}
+
+/* Completion Magic */
+.sr-celebration {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  z-index: 20;
+}
+.sr-cel-spark {
+  position: absolute;
+  left: 0; top: 0;
+  color: #fff;
+  font-size: 1.5rem;
+  transform: translate(var(--x), var(--y)) scale(0);
+  opacity: 0;
+  animation: epic-sparkle 3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  animation-delay: var(--delay);
+}
+
+@keyframes epic-sparkle {
+  0% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0) rotate(0deg); }
+  25% { opacity: 1; transform: translate(var(--x), calc(var(--y) - 25px)) scale(var(--scale)) rotate(45deg); text-shadow: 0 0 20px #fff; }
+  100% { opacity: 0; transform: translate(var(--x), calc(var(--y) - 120px)) scale(0.4) rotate(120deg); }
+}
+
+
+@media (max-width: 600px) {
+  .sr-sky-area { height: 35vh; top: 22vh; }
+  .sr-cards-stack { margin-top: 25vh; }
+  .sr-header-area h1 { font-size: 1.8rem; }
+  .sr-card-text { font-size: 1.05rem; }
+  .sr-star-btn { font-size: 2rem; }
+}
