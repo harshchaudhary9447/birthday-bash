@@ -180,18 +180,63 @@
 /* Responsive constraints */
 @media (max-width: 900px) {
   .heart-tree-text {
-    top: auto;
-    bottom: 80px;
+    top: clamp(75px, 11vh, 105px);
+    bottom: auto;
+    left: 0;
+    right: 0;
     transform: none;
-    padding: 30px;
-    background: linear-gradient(to top, rgba(254, 248, 244, 0.95) 0%, rgba(254, 248, 244, 0.95) 60%, rgba(254, 248, 244, 0) 100%);
+    padding: 10px 20px 4px;
+    text-align: center;
+    background: transparent;
     width: 100%;
-    margin-top: auto;
+    z-index: 15;
+  }
+  .heart-tree-text.active .script {
+    font-size: 1.55rem;
+    margin-bottom: 2px;
+  }
+  .heart-tree-text.active h1 {
+    font-size: clamp(2.1rem, 7.2vw, 2.9rem);
+    line-height: 1.1;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+  }
+  .heart-tree-text.active p {
+    font-size: 0.95rem;
   }
   .heart-tree-visual {
     left: 50%;
-    transform: translateX(-50%) scale(0.65);
+    transform: translateX(-50%) scale(0.72);
+    transform-origin: bottom center;
     bottom: 0;
+    z-index: 5;
+  }
+  .perfect-tree-glow {
+    left: 50%;
+    top: 50%;
+    width: 95vmin;
+    height: 95vmin;
+  }
+}
+
+@media (max-width: 480px) {
+  .heart-tree-text {
+    top: clamp(65px, 10vh, 90px);
+    padding: 8px 16px 2px;
+  }
+  .heart-tree-text.active .script {
+    font-size: 1.4rem;
+  }
+  .heart-tree-text.active h1 {
+    font-size: clamp(1.9rem, 6.8vw, 2.4rem);
+    margin-bottom: 4px;
+  }
+  .heart-tree-text.active p {
+    font-size: 0.9rem;
+  }
+  .heart-tree-visual {
+    transform: translateX(-50%) scale(0.66);
+    bottom: 5px;
   }
 }
 

@@ -112,6 +112,270 @@
   100% { transform: translateY(0); opacity: 1; }
 }
 
+.cake-celebration-reveal {
+  position: absolute;
+  bottom: 12%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: min(92vw, 500px);
+  z-index: 10;
+  animation: cake-reveal-pop 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cake-reveal-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) translateY(30px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) translateY(-4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.cake-sparkle-stars {
+  font-size: 1.4rem;
+  color: #ffd700;
+  letter-spacing: 0.2em;
+  margin-bottom: 4px;
+  animation: cake-sparkle-glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes cake-sparkle-glow {
+  0% { transform: scale(0.9); opacity: 0.7; filter: drop-shadow(0 0 4px #ffd700); }
+  100% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 12px #ff9900); }
+}
+
+.cake-hbd-text {
+  font-family: 'Caveat', cursive, sans-serif;
+  font-size: clamp(2rem, 7vw, 2.8rem);
+  line-height: 1.15;
+  color: #ffffff;
+  margin: 0;
+  text-shadow: 0 4px 15px rgba(255, 100, 150, 0.4);
+}
+.cake-hbd-text span {
+  display: block;
+  font-size: 1.15em;
+  color: #ffd700;
+  text-shadow: 0 2px 14px rgba(255, 200, 0, 0.8), 0 0 25px rgba(255, 120, 0, 0.5);
+  animation: pulse-text 2.2s infinite alternate;
+}
+
+.cake-hbd-sub {
+  font-family: var(--font-inter), sans-serif;
+  font-size: clamp(12px, 3.2vw, 15px);
+  color: rgba(255, 255, 255, 0.88);
+  margin: 8px 0 0;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+/* ==========================================================================
+   SUPER BLOOMING CRACKERS & FIREWORKS ABOVE CAKE
+   ========================================================================== */
+.blooming-crackers-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 52%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 12;
+}
+
+.cracker-burst-node {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  transform: translate(-50%, -50%) scale(var(--scale, 1));
+}
+
+/* Rocket trail shooting up from cake */
+.cracker-rocket {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3.5px;
+  height: 24px;
+  background: linear-gradient(180deg, #fff, var(--primary-color), transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 10px var(--primary-color);
+  animation: cracker-launch 3.2s cubic-bezier(0.12, 0.8, 0.22, 1) infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+@keyframes cracker-launch {
+  0% {
+    transform: translate(-50%, 200px) scaleY(1.4);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  24% {
+    transform: translate(-50%, 0) scaleY(0.7);
+    opacity: 0.95;
+  }
+  25% {
+    transform: translate(-50%, 0) scale(0);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Central blooming flash */
+.cracker-core-flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffffff 20%, var(--primary-color) 70%, transparent 100%);
+  filter: drop-shadow(0 0 18px var(--primary-color));
+  animation: cracker-flash 3.2s ease-out infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+@keyframes cracker-flash {
+  0%, 24% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  26% {
+    transform: translate(-50%, -50%) scale(2.8);
+    opacity: 1;
+    filter: drop-shadow(0 0 30px #ffffff);
+  }
+  38% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.6;
+  }
+  50%, 100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Expanding ripple rings */
+.cracker-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-color);
+  animation: cracker-ring-expand 3.2s cubic-bezier(0.1, 0.8, 0.25, 1) infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+.cracker-ring.r2 {
+  border-color: var(--accent-color);
+  border-width: 1px;
+  animation-delay: calc(var(--delay, 0s) + 0.08s);
+}
+
+@keyframes cracker-ring-expand {
+  0%, 24% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  26% {
+    opacity: 0.9;
+  }
+  55% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Blooming sparks radiating 360 deg */
+.cracker-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 14px;
+  background: radial-gradient(circle at 50% 20%, #ffffff 0%, var(--color) 70%);
+  border-radius: 999px;
+  box-shadow: 0 0 8px var(--color), 0 0 14px var(--color);
+  animation: cracker-spark-bloom 3.2s cubic-bezier(0.12, 0.85, 0.22, 1) infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+@keyframes cracker-spark-bloom {
+  0%, 24% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0) scale(0);
+    opacity: 0;
+  }
+  26% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--dist) * -0.3)) scale(1.6);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px #ffffff);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--dist) * -0.9)) scale(1.1);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--dist) * -1.15)) translateY(var(--gravity, 20px)) scale(0.65);
+    opacity: 0.6;
+  }
+  92%, 100% {
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(var(--dist) * -1.25)) translateY(calc(var(--gravity, 20px) * 1.6)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Floating stardust glitter embers */
+.cracker-glitter-star {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  font-size: 13px;
+  color: var(--color);
+  text-shadow: 0 0 8px var(--color), 0 0 16px #fff;
+  animation: cracker-glitter-float 3.2s cubic-bezier(0.1, 0.7, 0.2, 1) infinite;
+  animation-delay: var(--delay, 0s);
+  opacity: 0;
+}
+
+@keyframes cracker-glitter-float {
+  0%, 25% {
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  28% {
+    transform: translate(calc(var(--tx) * 0.4 - 50%), calc(var(--ty) * 0.3 - 50%)) scale(1.4) rotate(45deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(calc(var(--tx) * 0.85 - 50%), calc(var(--ty) * 0.85 - 50%)) scale(1) rotate(90deg);
+    opacity: 0.85;
+  }
+  90%, 100% {
+    transform: translate(calc(var(--tx) - 50%), calc(var(--ty) + 20px - 50%)) scale(0) rotate(180deg);
+    opacity: 0;
+  }
+}
+
 .bottom-title {
   position: absolute;
   bottom: 18%;
@@ -490,6 +754,41 @@
 
 /* Make it responsive */
 @media (max-width: 600px) {
-  .shelf-line { width: 180px; }
-  .epic-gift-wrapper { transform: translateY(20px) scale(1.15); }
+  .shelf-line { width: 170px; bottom: 28%; }
+  .epic-gift-wrapper { transform: translateY(10px) scale(0.9); }
+  .top-title {
+    top: 13%;
+    font-size: 1.2rem;
+    padding: 0 16px;
+  }
+  .candle-scene .interactive-cake {
+    transform: translateY(15px) scale(0.92);
+  }
+  .candle-instruction {
+    bottom: 120px;
+    left: auto;
+    right: -10px;
+  }
+  .candle-instruction .text {
+    font-size: 1.3rem;
+  }
+  .arrow-drawn {
+    width: 24px;
+    height: 24px;
+    margin-left: -8px;
+  }
+  .bottom-title {
+    bottom: 14%;
+    width: 90%;
+  }
+  .hbd-text {
+    font-size: clamp(1.65rem, 6vw, 2.15rem);
+    line-height: 1.2;
+  }
+  .blooming-crackers-sky {
+    height: 48%;
+  }
+  .cracker-burst-node {
+    transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.8));
+  }
 }

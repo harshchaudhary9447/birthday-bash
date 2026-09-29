@@ -5,7 +5,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 10vh;
+  padding-top: max(24px, 3vh);
+  padding-bottom: 60px;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
@@ -43,44 +44,47 @@
   100% { transform: translateY(0) rotate(360deg); }
 }
 
-/* Typography styles matching the dark starry reference */
+/* Typography styles */
 .sr-header-area {
   text-align: center;
   color: #fff;
   z-index: 5;
-  margin-bottom: 2rem;
+  margin-bottom: 6px;
   transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1);
-  padding: 0 20px;
+  padding: 0 16px;
+  position: relative;
 }
 .sr-header-area h1 {
   font-family: inherit;
   font-weight: 700;
-  font-size: 2.2rem;
+  font-size: clamp(1.7rem, 6vw, 2.2rem);
   letter-spacing: 0.02em;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.3rem 0;
   text-shadow: 0 4px 15px rgba(0,0,0,0.5);
   transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .sr-header-area h1.complete {
-  transform: scale(1.08);
+  transform: scale(1.06);
   color: #fccb6c;
   text-shadow: 0 4px 25px rgba(252, 203, 108, 0.6);
 }
 .sr-subheading {
-  font-size: 1rem;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: clamp(0.85rem, 3.2vw, 0.98rem);
+  color: rgba(255, 255, 255, 0.78);
   letter-spacing: 0.02em;
+  line-height: 1.45;
+  max-width: 480px;
+  margin: 0 auto;
 }
 
-/* Constellation Sky */
+/* Constellation Sky - naturally in flow below header so stars never collide with text */
 .sr-sky-area {
-  position: absolute;
-  top: 25vh;
-  left: 0;
-  width: 100%;
-  height: 40vh; /* Upper half mapping area */
+  position: relative;
+  width: min(94vw, 500px);
+  height: 155px;
+  margin: 6px auto 8px;
   pointer-events: none;
-  z-index: 2;
+  z-index: 4;
 }
 
 .sr-star-wrapper {
@@ -96,9 +100,9 @@
 
 @keyframes star-zig-zag {
   0% { transform: translate(-50%, -50%) translate(0, 0); }
-  25% { transform: translate(-50%, -50%) translate(8px, -12px); }
-  50% { transform: translate(-50%, -50%) translate(-6px, 8px); }
-  75% { transform: translate(-50%, -50%) translate(-10px, -6px); }
+  25% { transform: translate(-50%, -50%) translate(6px, -10px); }
+  50% { transform: translate(-50%, -50%) translate(-5px, 6px); }
+  75% { transform: translate(-50%, -50%) translate(-8px, -5px); }
   100% { transform: translate(-50%, -50%) translate(0, 0); }
 }
 
@@ -108,25 +112,24 @@
   border: none;
   outline: none;
   cursor: pointer;
-  padding: 20px; 
+  padding: 10px; 
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--accent); /* Natively matches the reason color! */
-  font-size: 3.5rem; 
-  text-shadow: 0 0 25px var(--accent), 0 0 50px var(--accent);
+  color: var(--accent);
+  font-size: 2.5rem; 
+  text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
   transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
   animation: star-pulsate 3.5s infinite alternate ease-in-out;
   animation-delay: var(--delay);
 }
-/* Focus/Hover states mapped to tap feedback nicely */
 .sr-star-btn:hover, .sr-star-btn:focus-visible {
-  transform: scale(1.3) !important;
-  text-shadow: 0 0 35px var(--accent), 0 0 60px #fff;
+  transform: scale(1.25) !important;
+  text-shadow: 0 0 30px var(--accent), 0 0 50px #fff;
 }
 @keyframes star-pulsate {
-  0% { transform: scale(0.85); opacity: 0.8; }
-  100% { transform: scale(1.15); opacity: 1; }
+  0% { transform: scale(0.88); opacity: 0.82; }
+  100% { transform: scale(1.12); opacity: 1; }
 }
 
 /* Tapped State */
@@ -136,30 +139,30 @@
 }
 
 @keyframes star-tapped-flow {
-  0% { transform: scale(1.3) rotate(0deg); filter: brightness(1.5); color: #fff; }
-  35% { transform: scale(0.3) rotate(90deg); opacity: 1; color: var(--accent); }
+  0% { transform: scale(1.25) rotate(0deg); filter: brightness(1.5); color: #fff; }
+  35% { transform: scale(0.35) rotate(90deg); opacity: 1; color: var(--accent); }
   100% { transform: scale(0.5) rotate(180deg); opacity: 0.4; filter: grayscale(0.5); }
 }
 
-/* The visual string connecting down */
+/* Visual string connecting down */
 .sr-thread {
   position: absolute;
   top: 75%;
   left: 50%;
   width: 1.5px;
   height: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.5) 0%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(255,255,255,0.45) 0%, transparent 100%);
   transform: translateX(-50%);
   opacity: 0;
   pointer-events: none;
-  transition: height 1s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s;
+  transition: height 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s;
 }
 .sr-star-wrapper.tapped .sr-thread {
-  height: 250px;
-  opacity: 1;
+  height: 60px;
+  opacity: 0.8;
 }
 
-/* Plentiful Confetti drop on tap */
+/* Confetti drop on tap */
 .sr-confetti-drop {
   position: absolute;
   top: 50%; left: 50%;
@@ -170,7 +173,7 @@
 .sr-cnf-piece {
   position: absolute;
   top: 0; left: 0;
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   background: var(--accent);
   border-radius: 50%;
   opacity: 0;
@@ -178,8 +181,7 @@
   animation: cnf-explode 0.6s cubic-bezier(0.1, 1, 0.3, 1) forwards;
 }
 
-/* Randomize confetti angles and colors dynamically */
-.sr-cnf-piece:nth-child(even) { background: #fff; width: 6px; height: 12px; border-radius: 2px; }
+.sr-cnf-piece:nth-child(even) { background: #fff; width: 5px; height: 10px; border-radius: 2px; }
 .sr-cnf-piece:nth-child(3n) { background: #fccb6c; width: 5px; height: 5px; }
 
 @keyframes cnf-explode {
@@ -188,31 +190,30 @@
   100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.4) rotate(var(--rot)); }
 }
 
-/* The flowing vertical stack */
+/* Compact flowing vertical stack with minimal scroll */
 .sr-cards-stack {
   position: relative;
-  z-index: 3;
-  margin-top: 15vh;
+  z-index: 5;
+  margin-top: 4px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  width: 90%;
-  max-width: 520px;
-  padding-bottom: 6rem;
+  gap: 7px;
+  width: min(92vw, 450px);
+  padding-bottom: 5rem;
 }
 
 .sr-reason-card {
   position: relative;
-  background: rgba(35, 20, 35, 0.55);
+  background: rgba(35, 20, 35, 0.65);
   border: 1px solid var(--accent);
-  border-radius: 14px;
-  padding: 18px 24px;
+  border-radius: 10px;
+  padding: 8px 14px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.04);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35), inset 0 0 10px rgba(255,255,255,0.03);
   opacity: 0;
-  transform: translateY(40px) scale(0.95);
-  animation: card-appear 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform: translateY(20px) scale(0.97);
+  animation: card-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes card-appear {
@@ -223,33 +224,34 @@
 }
 
 .sr-card-label {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: var(--accent);
-  margin-bottom: 8px;
+  margin-bottom: 2px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   text-transform: uppercase;
 }
 .sr-heart {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .sr-card-text {
-  font-size: 1.2rem;
+  font-size: 0.94rem;
   color: #fff;
-  font-weight: 600;
-  line-height: 1.4;
+  font-weight: 500;
+  line-height: 1.35;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
 }
 .sr-sparkle {
   color: var(--accent);
-  font-size: 1.3rem;
+  font-size: 1.05rem;
   opacity: 0.9;
+  margin-left: 8px;
 }
 
 /* Completion Magic */
@@ -276,11 +278,46 @@
   100% { opacity: 0; transform: translate(var(--x), calc(var(--y) - 120px)) scale(0.4) rotate(120deg); }
 }
 
-
 @media (max-width: 600px) {
-  .sr-sky-area { height: 35vh; top: 22vh; }
-  .sr-cards-stack { margin-top: 25vh; }
-  .sr-header-area h1 { font-size: 1.8rem; }
-  .sr-card-text { font-size: 1.05rem; }
-  .sr-star-btn { font-size: 2rem; }
+  .star-reveal-page {
+    padding-top: max(20px, 2.5vh);
+  }
+  .sr-header-area {
+    margin-bottom: 4px;
+    padding: 0 12px;
+  }
+  .sr-header-area h1 {
+    font-size: clamp(1.5rem, 5.2vw, 1.85rem);
+    margin-bottom: 0.25rem;
+  }
+  .sr-subheading {
+    font-size: 0.84rem;
+    line-height: 1.4;
+  }
+  .sr-sky-area {
+    height: 140px;
+    margin: 4px auto 6px;
+  }
+  .sr-cards-stack {
+    margin-top: 4px;
+    width: 92%;
+    gap: 6px;
+    padding-bottom: 70px;
+  }
+  .sr-reason-card {
+    padding: 7px 12px;
+    border-radius: 9px;
+  }
+  .sr-card-label {
+    font-size: 0.62rem;
+    margin-bottom: 2px;
+  }
+  .sr-card-text {
+    font-size: 0.88rem;
+    line-height: 1.3;
+  }
+  .sr-star-btn {
+    font-size: 2.1rem;
+    padding: 6px;
+  }
 }

@@ -19,40 +19,47 @@ export default function CakePhase({ person }) {
     } else if (scene === 2) {
       const tBuild = setTimeout(() => setIsBuilt(true), 3500);
       let streamGrabbed = null;
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const attachAudio = (stream) => {
+        streamGrabbed = stream;
+        setMicEnabled(true);
+        const AudioContext =
+          window.AudioContext || window.webkitAudioContext;
+        audioContextRef.current = new AudioContext();
+        analyserRef.current = audioContextRef.current.createAnalyser();
+        microphoneRef.current =
+          audioContextRef.current.createMediaStreamSource(stream);
+        microphoneRef.current.connect(analyserRef.current);
+        analyserRef.current.fftSize = 256;
+
+        const bufferLength = analyserRef.current.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        const startTime = Date.now();
+        const checkAudio = () => {
+          if (blownOut) return;
+          analyserRef.current.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+          const average = sum / bufferLength;
+
+          // Allow blowout once mic detects blow
+          if (average > 38 && Date.now() - startTime > 1000) {
+            handleBlowOut();
+          } else {
+            reqRef.current = requestAnimationFrame(checkAudio);
+          }
+        };
+        checkAudio();
+      };
+
+      if (typeof window !== "undefined" && window.__birthdayMicStream && window.__birthdayMicStream.active) {
+        attachAudio(window.__birthdayMicStream);
+      } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
           .getUserMedia({ audio: true })
           .then((stream) => {
-            streamGrabbed = stream;
-            setMicEnabled(true);
-            const AudioContext =
-              window.AudioContext || window.webkitAudioContext;
-            audioContextRef.current = new AudioContext();
-            analyserRef.current = audioContextRef.current.createAnalyser();
-            microphoneRef.current =
-              audioContextRef.current.createMediaStreamSource(stream);
-            microphoneRef.current.connect(analyserRef.current);
-            analyserRef.current.fftSize = 256;
-
-            const bufferLength = analyserRef.current.frequencyBinCount;
-            const dataArray = new Uint8Array(bufferLength);
-
-            const startTime = Date.now();
-            const checkAudio = () => {
-              if (blownOut) return;
-              analyserRef.current.getByteFrequencyData(dataArray);
-              let sum = 0;
-              for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
-              const average = sum / bufferLength;
-
-              // Only allow blowout after 3500ms (once cake is fully built)
-              if (average > 40 && Date.now() - startTime > 3500) {
-                handleBlowOut();
-              } else {
-                reqRef.current = requestAnimationFrame(checkAudio);
-              }
-            };
-            checkAudio();
+            window.__birthdayMicStream = stream;
+            attachAudio(stream);
           })
           .catch((err) => {
             console.log("Mic access denied or error:", err);
@@ -67,8 +74,6 @@ export default function CakePhase({ person }) {
         ) {
           audioContextRef.current.close().catch(console.error);
         }
-        if (streamGrabbed)
-          streamGrabbed.getTracks().forEach((track) => track.stop());
       };
     }
   }, [scene, blownOut]);
@@ -77,18 +82,66 @@ export default function CakePhase({ person }) {
     if (blownOut) return;
     setBlownOut(true);
     if (reqRef.current) cancelAnimationFrame(reqRef.current);
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      try {
+        navigator.vibrate([70, 50, 90, 60, 120]);
+      } catch (e) {}
+    }
   };
 
-  const confetti = Array.from({ length: 50 }).map((_, i) => (
+  const crackerBursts = useMemo(() => {
+    const burstConfigs = [
+      { id: 1, left: "20%", top: "28%", color: "#ffd700", accent: "#ff6b8b", delay: "0.1s", size: 1.15 },
+      { id: 2, left: "50%", top: "18%", color: "#ff2a6d", accent: "#ffd700", delay: "0.55s", size: 1.35 },
+      { id: 3, left: "80%", top: "26%", color: "#00f0ff", accent: "#d16ba5", delay: "0.95s", size: 1.2 },
+      { id: 4, left: "34%", top: "15%", color: "#ff9233", accent: "#ff3b75", delay: "1.55s", size: 1.1 },
+      { id: 5, left: "66%", top: "16%", color: "#e865f0", accent: "#ffe066", delay: "2.15s", size: 1.25 },
+    ];
+
+    return burstConfigs.map((cfg) => {
+      const sparkCount = 20;
+      const sparks = Array.from({ length: sparkCount }).map((_, i) => {
+        const angle = (i * 360) / sparkCount;
+        const dist = 65 + (i % 3) * 22;
+        return {
+          id: i,
+          angle: `${angle}deg`,
+          dist: `${dist}px`,
+          color: i % 2 === 0 ? cfg.color : cfg.accent,
+          gravity: `${18 + (i % 4) * 8}px`,
+        };
+      });
+
+      const glitters = Array.from({ length: 6 }).map((_, i) => {
+        const angle = (i * 60 + 15) * (Math.PI / 180);
+        const dist = 38 + Math.random() * 45;
+        return {
+          id: i,
+          tx: `${Math.cos(angle) * dist}px`,
+          ty: `${Math.sin(angle) * dist + 32}px`,
+          char: i % 3 === 0 ? "✦" : i % 3 === 1 ? "✧" : "✨",
+          color: i % 2 === 0 ? cfg.color : cfg.accent,
+        };
+      });
+
+      return {
+        ...cfg,
+        sparks,
+        glitters,
+      };
+    });
+  }, []);
+
+  const confetti = Array.from({ length: 65 }).map((_, i) => (
     <div
       key={i}
       className={`confetti-piece c-${i % 4}`}
       style={{
-        "--delay": `${Math.random() * 0.4}s`,
-        "--x": `${(Math.random() - 0.5) * 400}px`,
-        "--y": `${(Math.random() - 0.5) * 400 - 150}px`,
+        "--delay": `${Math.random() * 0.3}s`,
+        "--x": `${(Math.random() - 0.5) * 450}px`,
+        "--y": `${(Math.random() - 0.5) * 450 - 150}px`,
         "--rot": `${Math.random() * 720}deg`,
-        "--scale": `${Math.random() * 0.6 + 0.4}`,
+        "--scale": `${Math.random() * 0.6 + 0.5}`,
       }}
     />
   ));
@@ -195,7 +248,65 @@ export default function CakePhase({ person }) {
 
       <div
         className={`scene-container candle-scene ${scene === 2 ? "scene-active" : ""}`}>
-        <div className="top-title">First things first 🎂</div>
+        {!blownOut && <div className="top-title">First things first 🎂</div>}
+
+        {/* Blooming Fireworks & Crackers in the sky above the cake */}
+        {blownOut && (
+          <div className="blooming-crackers-sky" aria-hidden="true">
+            {crackerBursts.map((b) => (
+              <div
+                key={b.id}
+                className="cracker-burst-node"
+                style={{
+                  left: b.left,
+                  top: b.top,
+                  "--delay": b.delay,
+                  "--scale": b.size,
+                  "--primary-color": b.color,
+                  "--accent-color": b.accent,
+                }}
+              >
+                {/* Rocket trail */}
+                <div className="cracker-rocket" />
+
+                {/* Core shockwave & flash */}
+                <div className="cracker-core-flash" />
+                <div className="cracker-ring r1" />
+                <div className="cracker-ring r2" />
+
+                {/* 20 Blooming sparks radiating in 360 degrees */}
+                {b.sparks.map((s) => (
+                  <div
+                    key={s.id}
+                    className="cracker-spark"
+                    style={{
+                      "--angle": s.angle,
+                      "--dist": s.dist,
+                      "--color": s.color,
+                      "--gravity": s.gravity,
+                    }}
+                  />
+                ))}
+
+                {/* Shimmering stardust embers */}
+                {b.glitters.map((g) => (
+                  <span
+                    key={g.id}
+                    className="cracker-glitter-star"
+                    style={{
+                      "--tx": g.tx,
+                      "--ty": g.ty,
+                      "--color": g.color,
+                    }}
+                  >
+                    {g.char}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+
         <div
           className="interactive-cake"
           onClick={() => {
@@ -223,7 +334,7 @@ export default function CakePhase({ person }) {
 
           {isBuilt && !blownOut && (
             <div className="candle-instruction">
-              <span className="text">please blow it</span>
+              <span className="text">blow or tap candle</span>
               <svg
                 className="arrow-drawn"
                 viewBox="0 0 50 50"
@@ -249,8 +360,15 @@ export default function CakePhase({ person }) {
           )}
         </div>
         {blownOut && (
-          <div className="bottom-title">
-            <div className="hbd-text">Happy Birthday, Rancho!</div>
+          <div className="cake-celebration-reveal">
+            <div className="cake-sparkle-stars">✨ ✦ 🎂 ✦ ✨</div>
+            <h1 className="cake-hbd-text">
+              Happy Birthday,
+              <span>{person?.name || person?.nickname || "Rancho"}!</span>
+            </h1>
+            <p className="cake-hbd-sub">
+              Your wish is flying up to the stars! 🎉💖
+            </p>
           </div>
         )}
         {blownOut && scene === 2 && (

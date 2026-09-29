@@ -1,4 +1,4 @@
-export default function TreePhase({ person }) {
+export default function TreePhase({ person, onReplay }) {
   return (
     <section className="tree-scene">
       <div className="tree-copy">
@@ -12,6 +12,11 @@ export default function TreePhase({ person }) {
           Just like that, you are turning{" "}
           <strong>{person.age || "another"}</strong>.
         </p>
+        {onReplay && (
+          <button type="button" className="replay-btn" onClick={onReplay}>
+            Replay the magic <span>↺</span>
+          </button>
+        )}
       </div>
       <div className="blossom-tree" aria-label="Cherry blossom tree">
         <div className="trunk" />

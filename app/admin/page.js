@@ -43,6 +43,7 @@ function calculateAge(dateOfBirth) {
 
 export default function AdminPage() {
   const [pages, setPages] = useState([]);
+  const [activeTab, setActiveTab] = useState("birthday");
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -142,7 +143,7 @@ export default function AdminPage() {
             .split("\n")
             .map((url) => url.trim())
             .filter(Boolean)
-            .slice(0, 17)
+            .slice(0, 7)
         : starter[0].gallery,
       reasons: [
         form.reason1 || starter[0].reasons[0],
@@ -257,8 +258,8 @@ export default function AdminPage() {
   }
   async function uploadGallery(event) {
     const files = Array.from(event.target.files || []);
-    if (files.length > 17) {
-      setUploadError("Choose up to 17 gallery images.");
+    if (files.length > 7) {
+      setUploadError("Choose up to 7 gallery images.");
       return;
     }
     const urls = [],
@@ -377,16 +378,36 @@ export default function AdminPage() {
           <div className="brand">
             <span className="brand-mark">✦</span>
             <span>
-              birthday<span className="rose">bloom</span>
+              magic<span className="rose">moments</span>
             </span>
           </div>
-          <div className="side-label">Workspace</div>
-          <Link href="/admin" className="side-link active">
-            <span>◈</span> Birthday pages
-          </Link>
+          <div className="side-label">Services</div>
+          <button
+            type="button"
+            className={`side-link ${activeTab === "birthday" ? "active" : ""}`}
+            onClick={() => setActiveTab("birthday")}>
+            <span>🎂</span> Birthday pages
+          </button>
+          <button
+            type="button"
+            className={`side-link ${activeTab === "anniversary" ? "active" : ""}`}
+            onClick={() => setActiveTab("anniversary")}>
+            <span>💍</span> Anniversaries
+          </button>
+          <button
+            type="button"
+            className={`side-link ${activeTab === "friendship" ? "active" : ""}`}
+            onClick={() => setActiveTab("friendship")}>
+            <span>🤝</span> Friendship
+          </button>
+          <button
+            type="button"
+            className={`side-link ${activeTab === "confession" ? "active" : ""}`}
+            onClick={() => setActiveTab("confession")}>
+            <span>💌</span> Love Confessions
+          </button>
           <div className="side-note">
-            Create beautiful, shareable birthday stories for the people who make
-            life brighter.
+            Manage and craft interactive celebrations across all Magic Moments services.
           </div>
           <div className="sidebar-bottom">
             <span className="online-dot" /> All systems ready
@@ -396,19 +417,67 @@ export default function AdminPage() {
           <header className="admin-header">
             <div>
               <p className="eyebrow">YOUR CELEBRATION STUDIO</p>
-              <h1>Birthday pages</h1>
+              <h1>
+                {activeTab === "birthday" && "Birthday pages"}
+                {activeTab === "anniversary" && "Anniversary Experiences"}
+                {activeTab === "friendship" && "Friendship Fiesta"}
+                {activeTab === "confession" && "Love Confessions"}
+              </h1>
               <p className="muted">
-                Design a little universe for someone special.
+                {activeTab === "birthday" && "Design a little universe for someone special."}
+                {activeTab === "anniversary" && "Celebrate relationship milestones with story walks and vaults."}
+                {activeTab === "friendship" && "Roast, toast, and honor your lifelong best friends."}
+                {activeTab === "confession" && "Unfold emotional cinematic letters to say what you truly feel."}
               </p>
             </div>
             <div className="header-chip">
               ✦{" "}
               <span>
-                {pages.length} {pages.length === 1 ? "story" : "stories"} live
+                {activeTab === "birthday"
+                  ? `${pages.length} ${pages.length === 1 ? "story" : "stories"} live`
+                  : "Coming Soon ✨"}
               </span>
             </div>
           </header>
-          <div className="admin-grid">
+
+          {/* Admin Service Tabs Bar */}
+          <div className="admin-tabs-nav">
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === "birthday" ? "active" : ""}`}
+              onClick={() => setActiveTab("birthday")}>
+              <span>🎂</span>
+              <span>Birthdays</span>
+              <span className="admin-tab-count">{pages.length}</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === "anniversary" ? "active" : ""}`}
+              onClick={() => setActiveTab("anniversary")}>
+              <span>💍</span>
+              <span>Anniversaries</span>
+              <span className="admin-tab-badge">Soon</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === "friendship" ? "active" : ""}`}
+              onClick={() => setActiveTab("friendship")}>
+              <span>🤝</span>
+              <span>Friendship</span>
+              <span className="admin-tab-badge">Soon</span>
+            </button>
+            <button
+              type="button"
+              className={`admin-tab-btn ${activeTab === "confession" ? "active" : ""}`}
+              onClick={() => setActiveTab("confession")}>
+              <span>💌</span>
+              <span>Love Confessions</span>
+              <span className="admin-tab-badge">Soon</span>
+            </button>
+          </div>
+
+          {activeTab === "birthday" && (
+            <div className="admin-grid">
             <section className="form-card">
               <div className="card-heading">
                 <div>
@@ -528,7 +597,7 @@ export default function AdminPage() {
                   <div className="upload-icon">▧</div>
                   <div>
                     <strong>Upload gallery images</strong>
-                    <p>Select up to 17 images · max 1 MB each</p>
+                    <p>Select up to 7 images · max 1 MB each</p>
                   </div>
                   <input
                     className="file-input"
@@ -640,6 +709,79 @@ export default function AdminPage() {
               )}
             </section>
           </div>
+        )}
+
+        {activeTab === "anniversary" && (
+          <div className="admin-upcoming-card">
+            <div className="admin-upcoming-icon">💍</div>
+            <h2>Anniversary Romance Studio</h2>
+            <p>
+              We are actively developing the anniversary celebration engine. Soon you will be able to design custom relationship milestones, memory vaults, and romantic petal showers.
+            </p>
+            <div className="admin-upcoming-features">
+              <div className="admin-upcoming-feature-item">
+                <span>📅</span> Milestone Story Walk Builder
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>🔒</span> Couple Secret Vault Editor
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>🌹</span> Rose Petals & Vows Journey
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>🎵</span> Our Song Vinyl Music Player
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "friendship" && (
+          <div className="admin-upcoming-card">
+            <div className="admin-upcoming-icon">🤝</div>
+            <h2>Friendship Fiesta Studio</h2>
+            <p>
+              Celebrate your best friend with shared nostalgia, inside jokes, and certified awards. Coming in the next Magic Moments studio update.
+            </p>
+            <div className="admin-upcoming-features">
+              <div className="admin-upcoming-feature-item">
+                <span>🎭</span> Bestie Inside-Joke Vault
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>😂</span> Shared Meme Carousel Uploader
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>🏆</span> Lifetime Best Friend Award Generator
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>⚡</span> Fast-Paced Friendship Trivia Quiz
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "confession" && (
+          <div className="admin-upcoming-card">
+            <div className="admin-upcoming-icon">💌</div>
+            <h2>Love Confession Studio</h2>
+            <p>
+              A deeply emotional cinematic letter studio designed to ask the most important question with elegance and tenderness.
+            </p>
+            <div className="admin-upcoming-features">
+              <div className="admin-upcoming-feature-item">
+                <span>🔐</span> Heart Lock Interactive Unlocker
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>💫</span> Ambient Particle & Petal Visuals
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>🌸</span> Interactive Yes/No Heart Journey
+              </div>
+              <div className="admin-upcoming-feature-item">
+                <span>💖</span> Voice / Personal Audio Note
+              </div>
+            </div>
+          </div>
+        )}
           <footer className="admin-footer">
             <span>
               ♪ Background music: add your file to{" "}

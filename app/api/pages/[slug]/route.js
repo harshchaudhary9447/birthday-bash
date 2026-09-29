@@ -20,8 +20,17 @@ export async function PATCH(request, { params }) {
     const body = await request.json();
     await connectToDatabase();
     const page = await BirthdayPage.findOneAndUpdate({ slug: params.slug }, {
-      name: body.name?.trim(), nickname: body.nickname?.trim() || '', age: body.age?.toString().trim() || '',
-      date: body.date, message: body.message?.trim(),       photo: body.photo || '', photoPublicId: body.photoPublicId || '',
+      name: body.name?.trim(),
+      nickname: body.nickname?.trim() || '',
+      dob: body.dob?.trim() || '',
+      age: body.age?.toString().trim() || '',
+      date: body.date?.trim() || body.dob?.trim() || new Date().toISOString().split('T')[0],
+      message: body.message?.trim(),
+      reasons: Array.isArray(body.reasons)
+        ? body.reasons.map((r) => r?.toString().trim()).filter(Boolean).slice(0, 5)
+        : [],
+      photo: body.photo || '',
+      photoPublicId: body.photoPublicId || '',
       gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 17) : [],
       galleryPublicIds: Array.isArray(body.galleryPublicIds) ? body.galleryPublicIds.slice(0, 17) : []
     }, { new: true, runValidators: true }).lean();

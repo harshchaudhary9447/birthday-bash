@@ -3,12 +3,19 @@ import { connectToDatabase } from '../../../lib/db';
 import BirthdayPage from '../../../models/BirthdayPage';
 
 function cleanPayload(body) {
+  const dob = body.dob?.toString().trim() || '';
+  const date = body.date?.toString().trim() || dob || new Date().toISOString().split('T')[0];
+
   return {
     name: body.name?.trim(),
     nickname: body.nickname?.trim() || '',
+    dob,
     age: body.age?.toString().trim() || '',
-    date: body.date,
+    date,
     message: body.message?.trim(),
+    reasons: Array.isArray(body.reasons)
+      ? body.reasons.map((r) => r?.toString().trim()).filter(Boolean).slice(0, 5)
+      : [],
     photo: body.photo || '',
     photoPublicId: body.photoPublicId || '',
     gallery: Array.isArray(body.gallery) ? body.gallery.slice(0, 17) : [],
@@ -31,13 +38,24 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const data = cleanPayload(body);
-    if (!data.name || !data.date || !data.message) return NextResponse.json({ error: 'Name, date, and message are required.' }, { status: 400 });
+    if (!data.name) data.name = 'Celebration';
+    if (!data.message) data.message = 'Happy Birthday! Wishing you joy, love, and happiness on your special day!';
+
     await connectToDatabase();
-    const slug = `${data.name.toLowerCase().replace(/[^a-z0-9]+/g, '')}${Math.floor(1000 + Math.random() * 8999)}`;
+    const baseSlug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'birthday';
+    let slug = `${baseSlug}${Math.floor(1000 + Math.random() * 8999)}`;
+    
+    // Ensure slug is unique
+    let attempts = 0;
+    while (await BirthdayPage.exists({ slug }) && attempts < 5) {
+      slug = `${baseSlug}${Math.floor(1000 + Math.random() * 8999)}`;
+      attempts++;
+    }
+
     const page = await BirthdayPage.create({ ...data, slug });
-    return NextResponse.json({ ...page.toObject(), id: page.slug }, { status: 201 });
+    return NextResponse.json({ ...page.toObject(), id: page.slug, slug: page.slug }, { status: 201 });
   } catch (error) {
     console.error('Unable to create birthday page:', error);
-    return NextResponse.json({ error: 'Unable to save birthday page.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Unable to save birthday page.' }, { status: 500 });
   }
 }

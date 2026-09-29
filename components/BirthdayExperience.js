@@ -7,8 +7,6 @@ import StarRevealPhase from "./phases/StarRevealPhase";
 import CakePhase from "./phases/CakePhase";
 import GalleryPhase from "./phases/GalleryPhase";
 import HeartTreePhase from "./phases/HeartTreePhase";
-import MessagePhase from "./phases/MessagePhase";
-import TreePhase from "./phases/TreePhase";
 import WishPhase from "./phases/WishPhase";
 
 const fallback = {
@@ -35,20 +33,49 @@ const fallback = {
   ],
 };
 
-export default function BirthdayExperience({ slug }) {
-  const [person, setPerson] = useState(fallback);
+export default function BirthdayExperience({
+  slug,
+  previewData = null,
+  isPreview = false,
+  onExitPreview,
+  onPublish,
+  isPublishing = false,
+  publishError = "",
+  onClearPublishError,
+}) {
+  const [person, setPerson] = useState(previewData ? { ...fallback, ...previewData } : fallback);
   const [phase, setPhase] = useState(0);
   const [sound, setSound] = useState(true);
   const [popped, setPopped] = useState([]);
   const [introPopped, setIntroPopped] = useState(false);
-  const [uploadedGallery, setUploadedGallery] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [uploadedGallery, setUploadedGallery] = useState(
+    previewData && Array.isArray(previewData.gallery)
+      ? previewData.gallery.slice(0, 2)
+      : []
+  );
+  const [loading, setLoading] = useState(!previewData);
   const [arrowReleased, setArrowReleased] = useState(false);
   const [nextBalloonPopped, setNextBalloonPopped] = useState(false);
   const [letterComplete, setLetterComplete] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   const audio = useRef(null);
 
   useEffect(() => {
+    if (previewData) {
+      setPerson({ ...fallback, ...previewData });
+      setUploadedGallery(
+        Array.isArray(previewData.gallery) ? previewData.gallery.slice(0, 2) : [],
+      );
+      setLoading(false);
+      return;
+    }
+
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
+
     fetch(`/api/pages/${slug}`)
       .then((response) => (response.ok ? response.json() : null))
       .then((found) => {
@@ -61,7 +88,7 @@ export default function BirthdayExperience({ slug }) {
       })
       .catch((error) => console.error("Unable to load birthday page:", error))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, previewData]);
 
   useEffect(() => {
     if (loading || !audio.current) return;
@@ -108,8 +135,27 @@ export default function BirthdayExperience({ slug }) {
       ),
     [uploadedGallery],
   );
+  useEffect(() => {
+    // Early mic request as requested so permission prompt appears when opening website
+    const askMicEarly = () => {
+      if (typeof window !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((stream) => {
+            window.__birthdayMicStream = stream;
+          })
+          .catch(() => {});
+      }
+    };
+    askMicEarly();
+    window.addEventListener("pointerdown", askMicEarly, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", askMicEarly);
+    };
+  }, []);
+
   const prev = () => setPhase((current) => Math.max(current - 1, 0));
-  const next = () => setPhase((current) => Math.min(current + 1, 7));
+  const next = () => setPhase((current) => Math.min(current + 1, 5));
   const handleLetterComplete = useCallback(() => {
     setLetterComplete(true);
   }, []);
@@ -146,25 +192,94 @@ export default function BirthdayExperience({ slug }) {
       </main>
     );
 
+  const shareUrl =
+    typeof window !== "undefined"
+      ? slug
+        ? `${window.location.origin}/${slug}`
+        : window.location.href
+      : "";
+
+  const handleCopyLink = () => {
+    if (!shareUrl) return;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2400);
+      });
+    }
+  };
+
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+    `Hey ${person.name || "there"}! 🎂 I made something special just for you. Open this to see your birthday surprise: ${shareUrl}`,
+  )}`;
+
   return (
     <>
-      <main className="phone-blocked-message">
-        <div className="phone-blocked-card">
-          <div className="phone-blocked-emoji">💌✨</div>
-          <h1>Hello {person.name}!</h1>
-          <p>
-            I didn&apos;t make this for a phone.
-            <br />
-            Go look at it on a laptop, pretty please! 💖
-          </p>
-          <p className="phone-blocked-tease">
-            I told you to see it on a laptop, but you still opened it on your
-            phone 😒
-          </p>
-          <span>Something magical is waiting for you there 🥰</span>
-        </div>
-      </main>
-      <main className={`experience phase-${phase}`}>
+      <main className={`experience phase-${phase} ${isPreview ? "has-preview-bar is-preview-mode" : ""}`}>
+        {isPreview && (
+          <aside className="preview-top-bar" role="banner" aria-label="Preview toolbar">
+            <div className="preview-bar-left">
+              <button
+                type="button"
+                className="preview-bar-btn-back"
+                onClick={onExitPreview}
+                title="Return to the wizard editor"
+              >
+                <span className="preview-btn-text-full">← Back to Edit</span>
+                <span className="preview-btn-text-short">← Edit</span>
+              </button>
+            </div>
+
+            <div className="preview-bar-center">
+              <span className="preview-badge-dot" />
+              <span className="preview-badge-title">Preview</span>
+              <span className="preview-badge-desc">Draft</span>
+            </div>
+
+            <div className="preview-bar-actions">
+              <button
+                type="button"
+                className={`preview-bar-btn-sound ${sound ? "is-on" : "is-off"}`}
+                onClick={() => setSound(!sound)}
+                title={sound ? "Mute music" : "Play music"}
+                aria-label={sound ? "Mute music" : "Play music"}
+              >
+                <span className="preview-sound-icon">{sound ? "🎵" : "🔇"}</span>
+                <span className="preview-sound-label">{sound ? "Sound on" : "Sound off"}</span>
+              </button>
+
+              <button
+                type="button"
+                className="preview-bar-btn-publish"
+                onClick={onPublish}
+                disabled={isPublishing}
+                title="Publish celebration and generate official link"
+              >
+                <span className="preview-publish-text-full">
+                  {isPublishing ? "Unlocking... ✨" : "Publish & Get Link 🚀"}
+                </span>
+                <span className="preview-publish-text-short">
+                  {isPublishing ? "Publishing..." : "Publish 🚀"}
+                </span>
+              </button>
+            </div>
+          </aside>
+        )}
+        {isPreview && publishError && (
+          <div className="preview-error-toast" role="alert">
+            <span>⚠️ {publishError}</span>
+            {onClearPublishError && (
+              <button
+                type="button"
+                onClick={onClearPublishError}
+                className="preview-error-close"
+                aria-label="Dismiss error"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
         <audio
           ref={audio}
           src="/music/birthday.mp3"
@@ -172,9 +287,21 @@ export default function BirthdayExperience({ slug }) {
           autoPlay
           preload="auto"
         />
-        <button className="sound-toggle" onClick={() => setSound(!sound)}>
-          {sound ? "♪" : "×"} <span>{sound ? "Sound on" : "Sound off"}</span>
-        </button>
+        {!isPreview && (
+          <button
+            type="button"
+            className={`sound-toggle ${sound ? "is-playing" : "is-muted"}`}
+            onClick={() => setSound(!sound)}
+            aria-label={sound ? "Mute music" : "Play music"}
+          >
+            <span className="sound-bars" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span className="sound-label">{sound ? "Sound on" : "Sound off"}</span>
+          </button>
+        )}
         {phase === 0 && (
           <ArrowHeartPhase
             person={person}
@@ -200,12 +327,20 @@ export default function BirthdayExperience({ slug }) {
             onMessageComplete={handleLetterComplete}
           />
         )}
-        {phase === 5 && <GalleryPhase person={person} gallery={gallery} />}
-        {phase === 6 && <MessagePhase person={person} />}
-        {phase === 7 && <TreePhase person={person} />}
+        {phase === 5 && (
+          <GalleryPhase
+            person={person}
+            gallery={gallery}
+            onReplay={() => {
+              setPhase(0);
+              setArrowReleased(false);
+              setPopped([]);
+            }}
+            onShare={() => setShowShareModal(true)}
+          />
+        )}
         {phase > 0 &&
-          phase < 7 &&
-          phase !== 5 &&
+          phase < 5 &&
           (phase !== 3 || popped.length === 5) &&
           (phase !== 4 || letterComplete) && (
             <button
@@ -224,14 +359,14 @@ export default function BirthdayExperience({ slug }) {
               <em className="balloon-piece piece-four" />
             </button>
           )}
-        {phase >= 0 && phase < 8 && (
+        {phase >= 0 && phase < 6 && (
           <div className="progress-dots">
-            {[0, 1, 2, 3, 4, 5, 6, 7].map((dot) => (
+            {[0, 1, 2, 3, 4, 5].map((dot) => (
               <i className={phase >= dot ? "active" : ""} key={dot} />
             ))}
           </div>
         )}
-        {phase >= 0 && phase <= 7 && (
+        {phase >= 0 && phase <= 5 && (
           <div
             style={{
               position: "fixed",
@@ -269,10 +404,10 @@ export default function BirthdayExperience({ slug }) {
             <button
               type="button"
               onClick={next}
-              disabled={phase === 7}
+              disabled={phase === 5}
               style={{
                 border: "1px solid #d95775",
-                background: phase === 7 ? "rgba(217, 87, 117, 0.4)" : "#d95775",
+                background: phase === 5 ? "rgba(217, 87, 117, 0.4)" : "#d95775",
                 color: "#fff",
                 borderRadius: "999px",
                 fontSize: "11px",
@@ -280,15 +415,93 @@ export default function BirthdayExperience({ slug }) {
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
                 padding: "12px 18px",
-                cursor: phase === 7 ? "not-allowed" : "pointer",
+                cursor: phase === 5 ? "not-allowed" : "pointer",
                 boxShadow: "0 10px 28px rgba(217, 87, 117, 0.22)",
                 backdropFilter: "blur(8px)",
               }}>
-              {phase === 7 ? "Done" : "Next"}
+              {phase === 5 ? "Done" : "Next"}
             </button>
           </div>
         )}
       </main>
+
+      {showShareModal && (
+        <div
+          className="exp-share-modal-overlay"
+          onClick={() => setShowShareModal(false)}>
+          <div
+            className="exp-share-modal-card"
+            onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="exp-share-close-btn"
+              onClick={() => setShowShareModal(false)}
+              aria-label="Close share modal">
+              ✕
+            </button>
+            <div className="exp-share-icon" aria-hidden="true">💌</div>
+            {isPreview ? (
+              <>
+                <h2>Ready to Share with {person.name}?</h2>
+                <p>
+                  You are currently in <strong>Preview Mode</strong>. The shareable link has not been generated yet. Click below to publish and unlock your official link!
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "18px" }}>
+                  <button
+                    type="button"
+                    className="exp-share-whatsapp-btn"
+                    style={{ justifyContent: "center", cursor: "pointer", border: 0, padding: "14px 20px" }}
+                    onClick={() => {
+                      setShowShareModal(false);
+                      if (onPublish) onPublish();
+                    }}
+                    disabled={isPublishing}
+                  >
+                    <span>🚀</span> {isPublishing ? "Unlocking... ✨" : "Publish & Unlock Share Link"}
+                  </button>
+                  <button
+                    type="button"
+                    className="exp-share-copy-btn"
+                    style={{ background: "#f5e8ea", color: "#6a404c", width: "100%", justifyContent: "center", padding: "12px 18px" }}
+                    onClick={() => setShowShareModal(false)}
+                  >
+                    Keep Exploring Preview
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2>Send to {person.name}</h2>
+                <p>
+                  Share this magical celebration link directly with {person.name} so they can experience the surprise!
+                </p>
+                <div className="exp-share-url-box">
+                  <input
+                    type="text"
+                    readOnly
+                    value={shareUrl}
+                    className="exp-share-url-input"
+                    aria-label="Celebration URL"
+                  />
+                  <button
+                    type="button"
+                    className={`exp-share-copy-btn ${copied ? "copied" : ""}`}
+                    onClick={handleCopyLink}>
+                    {copied ? "Copied! 💖" : "Copy Link"}
+                  </button>
+                </div>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="exp-share-whatsapp-btn">
+                  <span>💬</span> Share on WhatsApp
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
