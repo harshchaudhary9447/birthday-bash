@@ -253,13 +253,13 @@ export default function BirthdayExperience({
                 className="preview-bar-btn-publish"
                 onClick={onPublish}
                 disabled={isPublishing}
-                title="Publish celebration and generate official link"
+                title="Unlock celebration and generate official link"
               >
                 <span className="preview-publish-text-full">
-                  {isPublishing ? "Unlocking... ✨" : "Publish & Get Link 🚀"}
+                  {isPublishing ? "Unlocking... ✨" : "Unlock Link 🚀"}
                 </span>
                 <span className="preview-publish-text-short">
-                  {isPublishing ? "Publishing..." : "Publish 🚀"}
+                  {isPublishing ? "Unlocking..." : "Unlock 🚀"}
                 </span>
               </button>
             </div>
@@ -457,7 +457,7 @@ export default function BirthdayExperience({
                     }}
                     disabled={isPublishing}
                   >
-                    <span>🚀</span> {isPublishing ? "Unlocking... ✨" : "Publish & Unlock Share Link"}
+                    <span>🚀</span> {isPublishing ? "Unlocking... ✨" : "Unlock Share Link 🚀"}
                   </button>
                   <button
                     type="button"

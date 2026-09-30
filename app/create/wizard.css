@@ -1526,3 +1526,612 @@
     gap: 12px;
   }
 }
+
+/* ========================================================
+   Paper Voucher Coupon & Razorpay Checkout Modal
+   ======================================================== */
+
+.paper-coupon-container {
+  position: relative;
+  width: 100%;
+  margin: 14px 0 16px;
+  filter: drop-shadow(0 10px 24px rgba(190, 80, 105, 0.15));
+}
+
+/* Authentic hole-punch cutouts on left and right */
+.paper-punch-notch {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  background: #ffffff; /* Matches modal card background */
+  border-radius: 50%;
+  z-index: 10;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.paper-punch-notch.notch-left {
+  left: -11px;
+  box-shadow: inset -2px 0 3px rgba(0, 0, 0, 0.08);
+}
+
+.paper-punch-notch.notch-right {
+  right: -11px;
+  box-shadow: inset 2px 0 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Paper Ticket Body */
+.paper-coupon-card {
+  background: linear-gradient(135deg, #fffdf8 0%, #fff6ec 50%, #fff1ea 100%);
+  border: 1px solid #f0d5db;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+/* Paper texture accent line at top */
+.paper-coupon-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #f43f5e, #fb7185, #fda4af);
+}
+
+/* Dashed Inset Boundary (like perforated paper) */
+.paper-coupon-dashed-border {
+  border: 2px dashed #e39fae;
+  border-radius: 14px;
+  margin: 7px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto 132px;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* Main Voucher Area */
+.paper-coupon-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.paper-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.paper-voucher-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #e11d48;
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.voucher-star {
+  font-size: 9px;
+  opacity: 0.9;
+}
+
+.paper-dynamic-month {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+  color: #9f1239;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.month-icon {
+  font-size: 11px;
+}
+
+/* Pricing Section */
+.paper-pricing-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0;
+  flex-wrap: wrap;
+}
+
+.paper-discount-pill {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  color: #ffffff;
+  padding: 5px 9px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+  flex-shrink: 0;
+}
+
+.discount-pct {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.discount-sub {
+  font-size: 9.5px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.paper-price-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.regular-price-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.regular-label {
+  font-size: 11.5px;
+  color: #885361;
+  font-weight: 600;
+}
+
+.regular-value-crossed {
+  font-size: 16px;
+  font-weight: 700;
+  color: #9f6574;
+  text-decoration: line-through;
+  text-decoration-color: #e11d48;
+  text-decoration-thickness: 2px;
+}
+
+.fair-price-row {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.fair-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4c1d29;
+}
+
+.fair-amount {
+  font-size: 26px;
+  font-weight: 900;
+  color: #e11d48;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.fair-only {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9f1239;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Paper Quote printed on voucher */
+.paper-quote-container {
+  background: rgba(255, 255, 255, 0.7);
+  border-left: 3px solid #e11d48;
+  padding: 6px 10px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+.paper-quote-text {
+  font-size: 11px;
+  line-height: 1.45;
+  color: #633340;
+  font-style: italic;
+  margin: 0;
+}
+
+/* Perforation Divider with Scissors */
+.paper-perforation-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 100%;
+  min-height: 100px;
+  padding: 0 4px;
+}
+
+.perforation-dashed-line {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  left: 50%;
+  width: 0;
+  border-left: 2px dashed #d58998;
+}
+
+.perforation-scissors-badge {
+  position: relative;
+  z-index: 2;
+  background: #fff6ec;
+  padding: 3px 5px;
+  border-radius: 50%;
+  border: 1px solid #eabac3;
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.perforation-scissors {
+  display: inline-block;
+  transform: rotate(-45deg);
+}
+
+/* Ticket Stub / Barcode & Currency */
+.paper-coupon-stub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 100%;
+}
+
+.stub-header-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.stub-title {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #7a3a4b;
+}
+
+.stub-verified-pill {
+  background: #e2fbe8;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+}
+
+.stub-code-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px dashed #d58998;
+  border-radius: 8px;
+  padding: 6px 10px;
+  width: 100%;
+}
+
+.stub-code-label {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #884d5d;
+  text-transform: uppercase;
+}
+
+.stub-code-val {
+  font-size: 13px;
+  font-weight: 900;
+  color: #e11d48;
+  letter-spacing: 0.05em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.stub-region-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #633340;
+  background: rgba(225, 29, 72, 0.06);
+  border: 1px solid rgba(225, 29, 72, 0.15);
+  padding: 3px 8px;
+  border-radius: 999px;
+  max-width: 100%;
+  text-align: center;
+}
+
+.stub-region-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stub-status-pill {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+}
+
+/* Mobile responsive for Paper Coupon */
+@media (max-width: 500px) {
+  .paper-coupon-dashed-border {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .paper-perforation-divider {
+    min-height: unset;
+    height: auto;
+    width: 100%;
+    margin: 2px 0;
+  }
+
+  .perforation-dashed-line {
+    top: 50%;
+    bottom: unset;
+    left: -8px;
+    right: -8px;
+    width: auto;
+    height: 0;
+    border-left: none;
+    border-top: 2px dashed #d58998;
+  }
+
+  .paper-coupon-stub {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .stub-code-display {
+    width: auto;
+    padding: 4px 8px;
+  }
+
+  .stub-header-line {
+    width: auto;
+    gap: 6px;
+  }
+}
+
+/* Checkout Modal Popup */
+.checkout-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 16, 22, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 200000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  animation: fadeInCheckout 0.25s ease;
+}
+
+@keyframes fadeInCheckout {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.checkout-modal-card {
+  position: relative;
+  background: #fff;
+  border-radius: 26px;
+  padding: 30px 26px;
+  width: min(500px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 75px rgba(0, 0, 0, 0.35);
+  animation: scaleUpCheckout 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+
+@keyframes scaleUpCheckout {
+  from { transform: scale(0.92) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.checkout-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #f7e9ed;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #8c4e5e;
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.2s ease;
+}
+
+.checkout-close-btn:hover {
+  background: #f1d3dc;
+  color: #3b1b24;
+}
+
+.checkout-header {
+  margin-bottom: 12px;
+}
+
+.checkout-icon {
+  font-size: 38px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.checkout-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #3b1b25;
+  margin: 0 0 6px;
+}
+
+.checkout-sub {
+  font-size: 13px;
+  color: #7b4e5b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.checkout-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #fffbfd;
+  border: 1px solid #f6dfe4;
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.checkout-features-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12.5px;
+  color: #633946;
+  line-height: 1.4;
+}
+
+.feature-check {
+  color: #16a34a;
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.checkout-error-pill {
+  background: #fef2f2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.checkout-pay-btn {
+  background: linear-gradient(135deg, #ff577d 0%, #d95775 100%);
+  border: none;
+  color: #fff;
+  padding: 15px 24px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(217, 87, 117, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.checkout-pay-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(217, 87, 117, 0.55);
+}
+
+.checkout-pay-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pay-arrow {
+  font-size: 17px;
+  transition: transform 0.2s ease;
+}
+
+.checkout-pay-btn:hover .pay-arrow {
+  transform: translateX(4px);
+}
+
+.checkout-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+.checkout-trust-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8c5b69;
+}
+
+@media (max-width: 480px) {
+  .checkout-modal-card {
+    padding: 24px 18px;
+  }
+  .checkout-title {
+    font-size: 19px;
+  }
+  .price-current {
+    font-size: 21px;
+  }
+  .month-offer-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

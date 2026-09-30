@@ -5,6 +5,7 @@ import Link from "next/link";
 import { compressImage } from "../../lib/compressImage";
 import ImageCropperModal from "./ImageCropperModal";
 import BirthdayExperience from "../../components/BirthdayExperience";
+import RazorpayCheckoutModal from "../../components/RazorpayCheckoutModal";
 import "./wizard.css";
 
 const SAMPLE_MESSAGES = [
@@ -65,6 +66,9 @@ export default function BirthdayCreateWizard() {
   const [createdSlug, setCreatedSlug] = useState("");
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [publishError, setPublishError] = useState("");
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [hasSeenPreview, setHasSeenPreview] = useState(false);
 
   // Portrait Cropper Modal State
   const [rawPortraitForCrop, setRawPortraitForCrop] = useState(null);
@@ -269,73 +273,44 @@ export default function BirthdayCreateWizard() {
   // Trigger in-page local preview (no database save, no public slug, URL hidden)
   const handleStartLocalPreview = () => {
     setErrorMsg("");
+    setHasSeenPreview(true);
     setIsPreviewMode(true);
   };
 
-  // Submit and save to MongoDB after previewing (Future payment gateway hook goes here!)
-  const handlePublishAfterPreview = async () => {
-    // =========================================================================
-    // 💳 FUTURE PAYMENT GATEWAY INTEGRATION:
-    // When you're ready to charge users, plug your payment gateway modal here:
-    // const paymentResult = await openPaymentCheckout({ amount: 99, currency: "INR" });
-    // if (!paymentResult.success) return;
-    // =========================================================================
+  const cleanReasons = formData.reasons
+    .map((r) => r.trim())
+    .filter(Boolean);
 
-    setErrorMsg("");
-    setPublishError("");
-    setLoading(true);
+  const finalName = formData.name.trim() || "Someone Special";
+  const finalMessage =
+    formData.message.trim() ||
+    "Happy Birthday! You make ordinary days feel like tiny celebrations. Today, the whole world gets to celebrate you.";
 
-    try {
-      const cleanReasons = formData.reasons
-        .map((r) => r.trim())
-        .filter(Boolean);
+  const checkoutPayload = {
+    name: finalName,
+    nickname: formData.nickname.trim() || finalName,
+    dob: formData.dob || "",
+    age: formData.age.trim() || "",
+    date: formData.dob || new Date().toISOString().split("T")[0],
+    message: finalMessage,
+    reasons: cleanReasons.length > 0 ? cleanReasons : ["You are loved", "You make life brighter"],
+    photo: formData.photo || "",
+    photoPublicId: formData.photoPublicId || "",
+    gallery: formData.gallery || [],
+    galleryPublicIds: formData.galleryPublicIds || [],
+  };
 
-      const finalName = formData.name.trim() || "Someone Special";
-      const finalMessage =
-        formData.message.trim() ||
-        "Happy Birthday! You make ordinary days feel like tiny celebrations. Today, the whole world gets to celebrate you.";
+  // Open Razorpay Checkout modal
+  const handleOpenCheckout = () => {
+    setShowCheckoutModal(true);
+  };
 
-      const payload = {
-        name: finalName,
-        nickname: formData.nickname.trim() || finalName,
-        dob: formData.dob || "",
-        age: formData.age.trim() || "",
-        date: formData.dob || new Date().toISOString().split("T")[0],
-        message: finalMessage,
-        reasons: cleanReasons.length > 0 ? cleanReasons : ["You are loved", "You make life brighter"],
-        photo: formData.photo || "",
-        photoPublicId: formData.photoPublicId || "",
-        gallery: formData.gallery || [],
-        galleryPublicIds: formData.galleryPublicIds || [],
-      };
-
-      const res = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (!res.ok) {
-        throw new Error(result.error || `Server error (${res.status})`);
-      }
-
-      const newSlug = result.slug || result.id;
-      if (!newSlug) {
-        throw new Error("Server did not return a celebration link. Please try again.");
-      }
-
-      setCreatedSlug(newSlug);
-      setIsPreviewMode(false);
-      setStep(6);
-    } catch (err) {
-      console.error("Publish error:", err);
-      const msg = err.message || "Failed to save celebration page. Please try again.";
-      setErrorMsg(msg);
-      setPublishError(msg);
-    } finally {
-      setLoading(false);
-    }
+  // On successful Razorpay payment & backend verification
+  const handlePaymentSuccess = ({ slug }) => {
+    setCreatedSlug(slug);
+    setShowCheckoutModal(false);
+    setIsPreviewMode(false);
+    setStep(6);
   };
 
   // Copy shareable link
@@ -393,13 +368,21 @@ export default function BirthdayCreateWizard() {
                     ],
             }}
             onExitPreview={() => setIsPreviewMode(false)}
-            onPublish={handlePublishAfterPreview}
+            onPublish={handleOpenCheckout}
             isPublishing={loading}
             publishError={publishError}
             onClearPublishError={() => setPublishError("")}
           />
         </div>
       )}
+
+      {/* Razorpay Secure Checkout Modal with Month Offer */}
+      <RazorpayCheckoutModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        pagePayload={checkoutPayload}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
 
       {/* Header */}
       <header className="wizard-header">
@@ -940,14 +923,28 @@ export default function BirthdayCreateWizard() {
                 Next Step →
               </button>
             ) : (
-              <button
-                type="button"
-                className="btn-wizard-next"
-                onClick={handleStartLocalPreview}
-                disabled={!canGoNext() || loading}
-              >
-                Preview Experience 👀
-              </button>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  className={hasSeenPreview ? "btn-wizard-prev" : "btn-wizard-next"}
+                  onClick={handleStartLocalPreview}
+                  disabled={!canGoNext() || loading}
+                  style={{ margin: 0 }}
+                >
+                  {hasSeenPreview ? "Preview Again 👀" : "Preview Experience 👀"}
+                </button>
+                {hasSeenPreview && (
+                  <button
+                    type="button"
+                    className="btn-wizard-next"
+                    onClick={handleOpenCheckout}
+                    disabled={!canGoNext() || loading}
+                    style={{ margin: 0 }}
+                  >
+                    Unlock Link 🚀
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}

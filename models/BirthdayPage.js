@@ -12,7 +12,10 @@ const birthdayPageSchema = new mongoose.Schema({
   photo: { type: String, default: '' },
   photoPublicId: { type: String, default: '' },
   gallery: { type: [String], default: [] },
-  galleryPublicIds: { type: [String], default: [] }
+  galleryPublicIds: { type: [String], default: [] },
+  isPaid: { type: Boolean, default: false },
+  paymentId: { type: String, default: '' },
+  orderId: { type: String, default: '' }
 }, { timestamps: true });
 
 export default mongoose.models.BirthdayPage || mongoose.model('BirthdayPage', birthdayPageSchema);
