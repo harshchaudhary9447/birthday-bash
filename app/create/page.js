@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { compressImage } from "../../lib/compressImage";
 import ImageCropperModal from "./ImageCropperModal";
@@ -57,8 +57,12 @@ function getWordCount(text) {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+const STORAGE_KEY = "birthday_bash_create_draft";
+
 export default function BirthdayCreateWizard() {
   const [step, setStep] = useState(1);
+  const [maxStepReached, setMaxStepReached] = useState(1);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -89,6 +93,135 @@ export default function BirthdayCreateWizard() {
 
   const portraitInputRef = useRef(null);
   const galleryInputRef = useRef(null);
+
+  // Helper to advance or switch steps while tracking highest step reached
+  const changeStep = (newStep) => {
+    setStep(newStep);
+    setMaxStepReached((prev) => Math.max(prev, newStep));
+  };
+
+  // Restore draft from localStorage on initial client load (prevents SSR hydration mismatch)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          if (parsed.formData && typeof parsed.formData === "object") {
+            setFormData((prev) => ({
+              ...prev,
+              name: typeof parsed.formData.name === "string" ? parsed.formData.name : prev.name,
+              nickname: typeof parsed.formData.nickname === "string" ? parsed.formData.nickname : prev.nickname,
+              dob: typeof parsed.formData.dob === "string" ? parsed.formData.dob : prev.dob,
+              age: typeof parsed.formData.age === "string" ? parsed.formData.age : prev.age,
+              message: typeof parsed.formData.message === "string" ? parsed.formData.message : prev.message,
+              reasons:
+                Array.isArray(parsed.formData.reasons) && parsed.formData.reasons.length === 5
+                  ? parsed.formData.reasons
+                  : prev.reasons,
+              photo: typeof parsed.formData.photo === "string" ? parsed.formData.photo : prev.photo,
+              photoPublicId:
+                typeof parsed.formData.photoPublicId === "string"
+                  ? parsed.formData.photoPublicId
+                  : prev.photoPublicId,
+              gallery: Array.isArray(parsed.formData.gallery) ? parsed.formData.gallery : prev.gallery,
+              galleryPublicIds: Array.isArray(parsed.formData.galleryPublicIds)
+                ? parsed.formData.galleryPublicIds
+                : prev.galleryPublicIds,
+            }));
+          }
+
+          if (parsed.createdSlug && typeof parsed.createdSlug === "string") {
+            setCreatedSlug(parsed.createdSlug);
+            if (parsed.step === 6) {
+              setStep(6);
+            }
+          }
+
+          const savedStep = typeof parsed.step === "number" ? parsed.step : 1;
+          const restoredStep = savedStep === 6 && !parsed.createdSlug ? 5 : savedStep;
+          if (restoredStep >= 1 && restoredStep <= 6) {
+            setStep(restoredStep);
+          }
+
+          const savedMax =
+            typeof parsed.maxStepReached === "number" ? parsed.maxStepReached : restoredStep;
+          setMaxStepReached(Math.max(savedMax, restoredStep, 1));
+
+          if (typeof parsed.hasSeenPreview === "boolean") {
+            setHasSeenPreview(parsed.hasSeenPreview);
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load draft from localStorage:", err);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Persist entered data and step to localStorage whenever state changes
+  useEffect(() => {
+    if (!isHydrated) return; // Prevent overwriting stored draft during pre-hydration
+
+    try {
+      const dataToSave = {
+        formData,
+        step,
+        maxStepReached,
+        hasSeenPreview,
+        createdSlug,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    } catch (err) {
+      console.warn("Could not save draft to localStorage:", err);
+    }
+  }, [formData, step, maxStepReached, hasSeenPreview, createdSlug, isHydrated]);
+
+  // Check if user has entered any custom data so far
+  const hasDraftData = Boolean(
+    formData.name.trim() ||
+      formData.nickname.trim() ||
+      formData.dob ||
+      formData.age ||
+      formData.message.trim() ||
+      formData.reasons.some((r) => r.trim()) ||
+      formData.photo ||
+      formData.gallery.length > 0
+  );
+
+  // Clear entered data and restart wizard from Step 1
+  const handleResetDraft = () => {
+    if (
+      typeof window !== "undefined" &&
+      window.confirm("Are you sure you want to clear your entered details and start fresh?")
+    ) {
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (err) {
+        console.warn("Failed to clear draft from localStorage:", err);
+      }
+      setStep(1);
+      setMaxStepReached(1);
+      setFormData({
+        name: "",
+        nickname: "",
+        dob: "",
+        age: "",
+        message: "",
+        reasons: ["", "", "", "", ""],
+        photo: "",
+        photoPublicId: "",
+        gallery: [],
+        galleryPublicIds: [],
+      });
+      setCreatedSlug("");
+      setHasSeenPreview(false);
+      setErrorMsg("");
+      setReasonWarning("");
+    }
+  };
 
   // Handle DOB change with auto-age calculation
   const handleDobChange = (e) => {
@@ -310,7 +443,7 @@ export default function BirthdayCreateWizard() {
     setCreatedSlug(slug);
     setShowCheckoutModal(false);
     setIsPreviewMode(false);
-    setStep(6);
+    changeStep(6);
   };
 
   // Copy shareable link
@@ -390,6 +523,23 @@ export default function BirthdayCreateWizard() {
           ← Back
         </Link>
         <div className="wizard-brand-tag">✨ Magic Moments Creator</div>
+        <div className="wizard-header-actions">
+          {isHydrated && hasDraftData && step < 6 && (
+            <>
+              <span className="wizard-saved-pill" title="All your entered data is automatically saved!">
+                ✓ Auto-Saved
+              </span>
+              <button
+                type="button"
+                className="wizard-reset-draft-btn"
+                onClick={handleResetDraft}
+                title="Clear all inputs and start over"
+              >
+                Clear Form ↺
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       {/* Progress Stepper */}
@@ -408,9 +558,11 @@ export default function BirthdayCreateWizard() {
               type="button"
               className={`stepper-step ${step === s.num ? "active" : ""} ${step > s.num ? "completed" : ""}`}
               onClick={() => {
-                if (step < 6 && s.num < step) setStep(s.num);
+                if (step < 6 && (s.num <= maxStepReached || s.num < step)) {
+                  changeStep(s.num);
+                }
               }}
-              disabled={step === 6 || s.num > step}
+              disabled={step === 6 || (s.num > maxStepReached && s.num > step)}
             >
               <div className="step-circle">
                 {step > s.num ? "✓" : s.num}
@@ -877,7 +1029,13 @@ export default function BirthdayCreateWizard() {
                 type="button"
                 className="final-share-new-btn"
                 onClick={() => {
+                  try {
+                    localStorage.removeItem(STORAGE_KEY);
+                  } catch (err) {
+                    console.warn("Failed to clear localStorage:", err);
+                  }
                   setStep(1);
+                  setMaxStepReached(1);
                   setFormData({
                     name: "",
                     nickname: "",
@@ -891,6 +1049,7 @@ export default function BirthdayCreateWizard() {
                     galleryPublicIds: [],
                   });
                   setCreatedSlug("");
+                  setHasSeenPreview(false);
                 }}
               >
                 Create Another Celebration ✨
@@ -917,7 +1076,7 @@ export default function BirthdayCreateWizard() {
               <button
                 type="button"
                 className="btn-wizard-next"
-                onClick={() => setStep(step + 1)}
+                onClick={() => changeStep(step + 1)}
                 disabled={!canGoNext() || loading}
               >
                 Next Step →

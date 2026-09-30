@@ -89,11 +89,22 @@ export default function AdminPage() {
       .finally(() => setLoading(false));
   }, [authenticated]);
 
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && sessionStorage.getItem("admin_authenticated") === "true") {
+        setAuthenticated(true);
+      }
+    } catch (e) {}
+  }, []);
+
   function unlockAdmin(event) {
     event.preventDefault();
     if (password === ADMIN_PASSWORD) {
       setPasswordError("");
       setAuthenticated(true);
+      try {
+        sessionStorage.setItem("admin_authenticated", "true");
+      } catch (e) {}
       return;
     }
     setPasswordError("That password is not correct.");

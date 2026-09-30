@@ -67,6 +67,53 @@
   color: #4a212e;
 }
 
+.wizard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizard-saved-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 4px 9px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wizard-reset-draft-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(217, 87, 117, 0.25);
+  color: #8c5061;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: inherit;
+}
+
+.wizard-reset-draft-btn:hover {
+  background: #ffe4e6;
+  color: #e11d48;
+  border-color: #fda4af;
+}
+
+@media (max-width: 520px) {
+  .wizard-saved-pill {
+    display: none;
+  }
+}
+
 /* Step Progress Indicator (Horizontal Stepper) */
 .wizard-stepper {
   position: relative;
