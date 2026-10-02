@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '../../../../lib/db';
 import BirthdayPage from '../../../../models/BirthdayPage';
 import { cloudinaryPublicIdFromUrl, deleteCloudinaryAsset } from '../../../../lib/cloudinary';
+import { verifyAdminAuth } from '../../../../lib/adminAuth';
 
 export async function GET(request, { params }) {
   try {
@@ -17,6 +18,10 @@ export async function GET(request, { params }) {
 
 export async function PATCH(request, { params }) {
   try {
+    if (!verifyAdminAuth(request)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
+    }
+
     const body = await request.json();
     await connectToDatabase();
     const page = await BirthdayPage.findOneAndUpdate({ slug: params.slug }, {
@@ -44,6 +49,10 @@ export async function PATCH(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
+    if (!verifyAdminAuth(request)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const page = await BirthdayPage.findOne({ slug: params.slug }).lean();
     if (!page) return NextResponse.json({ error: 'Birthday page not found.' }, { status: 404 });

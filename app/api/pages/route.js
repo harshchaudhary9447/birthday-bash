@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '../../../lib/db';
 import BirthdayPage from '../../../models/BirthdayPage';
+import { verifyAdminAuth } from '../../../lib/adminAuth';
 
 function cleanPayload(body) {
   const dob = body.dob?.toString().trim() || '';
@@ -23,8 +24,12 @@ function cleanPayload(body) {
   };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
+    if (!verifyAdminAuth(request)) {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required.' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const pages = await BirthdayPage.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json(pages.map((page) => ({ ...page, id: page.slug, _id: undefined })));
@@ -36,6 +41,13 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    if (!verifyAdminAuth(request)) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Direct celebration creation is restricted to verified checkout payments.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const data = cleanPayload(body);
     if (!data.name) data.name = 'Celebration';

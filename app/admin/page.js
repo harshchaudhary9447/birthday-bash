@@ -30,8 +30,6 @@ const starter = [
     ],
   },
 ];
-const ADMIN_PASSWORD = "sacwac";
-
 function calculateAge(dateOfBirth) {
   if (!dateOfBirth) return "";
   const birthDate = new Date(`${dateOfBirth}T00:00:00`);
@@ -45,6 +43,7 @@ export default function AdminPage() {
   const [pages, setPages] = useState([]);
   const [activeTab, setActiveTab] = useState("birthday");
   const [authenticated, setAuthenticated] = useState(false);
+  const [adminToken, setAdminToken] = useState("");
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -75,7 +74,9 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authenticated) return;
-    fetch("/api/pages")
+    const headers = {};
+    if (adminToken) headers["x-admin-token"] = adminToken;
+    fetch("/api/pages", { headers })
       .then((response) =>
         response.ok
           ? response.json()
@@ -87,28 +88,43 @@ export default function AdminPage() {
         setPages(starter);
       })
       .finally(() => setLoading(false));
-  }, [authenticated]);
+  }, [authenticated, adminToken]);
 
   useEffect(() => {
     try {
-      if (typeof window !== "undefined" && sessionStorage.getItem("admin_authenticated") === "true") {
-        setAuthenticated(true);
+      if (typeof window !== "undefined") {
+        const token = sessionStorage.getItem("admin_token");
+        if (token) {
+          setAdminToken(token);
+          setAuthenticated(true);
+        }
       }
     } catch (e) {}
   }, []);
 
-  function unlockAdmin(event) {
+  async function unlockAdmin(event) {
     event.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setPasswordError("");
+    setPasswordError("");
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setPasswordError(data.error || "That password is not correct.");
+        setPassword("");
+        return;
+      }
+      setAdminToken(data.token);
       setAuthenticated(true);
       try {
-        sessionStorage.setItem("admin_authenticated", "true");
+        sessionStorage.setItem("admin_token", data.token);
       } catch (e) {}
-      return;
+    } catch (error) {
+      setPasswordError("Authentication request failed. Please try again.");
     }
-    setPasswordError("That password is not correct.");
-    setPassword("");
   }
 
   function edit(page) {
@@ -133,8 +149,11 @@ export default function AdminPage() {
     if (!confirmDelete) return;
     setConfirmDelete(null);
     setDeleting(true);
+    const headers = {};
+    if (adminToken) headers["x-admin-token"] = adminToken;
     const response = await fetch("/api/pages/" + confirmDelete, {
       method: "DELETE",
+      headers,
     });
     if (!response.ok) {
       setUploadError("Could not delete this page.");
@@ -165,11 +184,13 @@ export default function AdminPage() {
       ],
     };
     delete record.galleryText;
+    const headers = { "Content-Type": "application/json" };
+    if (adminToken) headers["x-admin-token"] = adminToken;
     const response = await fetch(
       selected ? `/api/pages/${selected}` : "/api/pages",
       {
         method: selected ? "PATCH" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(record),
       },
     );
@@ -214,9 +235,9 @@ export default function AdminPage() {
   }
   async function uploadImage(file, onUploaded) {
     if (!file) return false;
-    if (file.size > 1024 * 1024) {
+    if (file.size > 6 * 1024 * 1024) {
       setUploadError(
-        "That image is larger than 1 MB. Please choose a smaller file.",
+        "That image is larger than 6 MB. Please choose a smaller file.",
       );
       return false;
     }
