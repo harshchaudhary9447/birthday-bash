@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import "./CakePhase.css";
 
-export default function CakePhase({ person }) {
+export default function CakePhase({ person, onComplete }) {
   const [scene, setScene] = useState(0);
   const [micEnabled, setMicEnabled] = useState(false);
   const [blownOut, setBlownOut] = useState(false);
@@ -87,6 +87,10 @@ export default function CakePhase({ person }) {
         navigator.vibrate([70, 50, 90, 60, 120]);
       } catch (e) {}
     }
+    // Signal completion after candle blowout celebration fireworks have bloomed (~2.8s)
+    setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 2800);
   };
 
   const crackerBursts = useMemo(() => {
@@ -341,14 +345,14 @@ export default function CakePhase({ person }) {
                 width="30"
                 height="30">
                 <path
-                  d="M 40,10 C 30,30 20,40 5,45"
+                  d="M 38,8 C 30,18 24,24 16,28"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
                 <polyline
-                  points="15,40 5,45 10,35"
+                  points="24,23 16,28 18,20"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="3"

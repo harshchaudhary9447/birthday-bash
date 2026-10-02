@@ -8,6 +8,7 @@ import CakePhase from "./phases/CakePhase";
 import GalleryPhase from "./phases/GalleryPhase";
 import HeartTreePhase from "./phases/HeartTreePhase";
 import WishPhase from "./phases/WishPhase";
+import CelebrationEndPhase from "./phases/CelebrationEndPhase";
 
 const fallback = {
   name: "Satwika",
@@ -56,6 +57,8 @@ export default function BirthdayExperience({
   const [loading, setLoading] = useState(!previewData);
   const [arrowReleased, setArrowReleased] = useState(false);
   const [nextBalloonPopped, setNextBalloonPopped] = useState(false);
+  const [treeComplete, setTreeComplete] = useState(false);
+  const [cakeComplete, setCakeComplete] = useState(false);
   const [letterComplete, setLetterComplete] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -155,13 +158,15 @@ export default function BirthdayExperience({
   }, []);
 
   const prev = () => setPhase((current) => Math.max(current - 1, 0));
-  const next = () => setPhase((current) => Math.min(current + 1, 5));
+  const next = () => setPhase((current) => Math.min(current + 1, 6));
   const handleLetterComplete = useCallback(() => {
     setLetterComplete(true);
   }, []);
   useEffect(() => {
     setNextBalloonPopped(false);
     setLetterComplete(false);
+    setTreeComplete(false);
+    setCakeComplete(false);
   }, [phase]);
   const popNextBalloon = () => {
     if (nextBalloonPopped) return;
@@ -311,8 +316,18 @@ export default function BirthdayExperience({
             nextBalloonPopped={nextBalloonPopped}
           />
         )}
-        {phase === 1 && <HeartTreePhase person={person} />}
-        {phase === 2 && <CakePhase person={person} />}
+        {phase === 1 && (
+          <HeartTreePhase
+            person={person}
+            onComplete={() => setTreeComplete(true)}
+          />
+        )}
+        {phase === 2 && (
+          <CakePhase
+            person={person}
+            onComplete={() => setCakeComplete(true)}
+          />
+        )}
         {phase === 3 && (
           <StarRevealPhase
             popped={popped}
@@ -331,6 +346,11 @@ export default function BirthdayExperience({
           <GalleryPhase
             person={person}
             gallery={gallery}
+          />
+        )}
+        {phase === 6 && (
+          <CelebrationEndPhase
+            person={person}
             onReplay={() => {
               setPhase(0);
               setArrowReleased(false);
@@ -340,7 +360,9 @@ export default function BirthdayExperience({
           />
         )}
         {phase > 0 &&
-          phase < 5 &&
+          phase < 6 &&
+          (phase !== 1 || treeComplete) &&
+          (phase !== 2 || cakeComplete) &&
           (phase !== 3 || popped.length === 5) &&
           (phase !== 4 || letterComplete) && (
             <button
@@ -359,14 +381,14 @@ export default function BirthdayExperience({
               <em className="balloon-piece piece-four" />
             </button>
           )}
-        {phase >= 0 && phase < 6 && (
+        {phase >= 0 && phase < 7 && (
           <div className="progress-dots">
-            {[0, 1, 2, 3, 4, 5].map((dot) => (
+            {[0, 1, 2, 3, 4, 5, 6].map((dot) => (
               <i className={phase >= dot ? "active" : ""} key={dot} />
             ))}
           </div>
         )}
-        {phase >= 0 && phase <= 5 && (
+        {phase >= 0 && phase <= 6 && (
           <div
             style={{
               position: "fixed",
@@ -404,10 +426,10 @@ export default function BirthdayExperience({
             <button
               type="button"
               onClick={next}
-              disabled={phase === 5}
+              disabled={phase === 6}
               style={{
                 border: "1px solid #d95775",
-                background: phase === 5 ? "rgba(217, 87, 117, 0.4)" : "#d95775",
+                background: phase === 6 ? "rgba(217, 87, 117, 0.4)" : "#d95775",
                 color: "#fff",
                 borderRadius: "999px",
                 fontSize: "11px",
@@ -415,11 +437,11 @@ export default function BirthdayExperience({
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
                 padding: "12px 18px",
-                cursor: phase === 5 ? "not-allowed" : "pointer",
+                cursor: phase === 6 ? "not-allowed" : "pointer",
                 boxShadow: "0 10px 28px rgba(217, 87, 117, 0.22)",
                 backdropFilter: "blur(8px)",
               }}>
-              {phase === 5 ? "Done" : "Next"}
+              {phase === 6 ? "Done" : "Next"}
             </button>
           </div>
         )}

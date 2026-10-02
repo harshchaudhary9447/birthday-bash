@@ -10,7 +10,7 @@ const gradients = [
   { id: "grad-light", top: "#ffe8ed", bottom: "#ffa3c0" },
 ];
 
-export default function HeartTreePhase({ person }) {
+export default function HeartTreePhase({ person, onComplete }) {
   const [showTree, setShowTree] = useState(false);
 
   useEffect(() => {
@@ -18,6 +18,14 @@ export default function HeartTreePhase({ person }) {
     const timer = setTimeout(() => setShowTree(true), 100);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    // Trigger onComplete when heart tree branches and leaves have fully bloomed (~4.5s)
+    const completeTimer = setTimeout(() => {
+      if (onComplete) onComplete();
+    }, 4500);
+    return () => clearTimeout(completeTimer);
+  }, [onComplete]);
 
   const generatedHearts = useMemo(() => {
     const hearts = [];

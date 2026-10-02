@@ -31,6 +31,7 @@ export default function RazorpayCheckoutModal({
   const [currency, setCurrency] = useState(() => detectUserCurrencySync());
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showExitWarning, setShowExitWarning] = useState(false);
 
   // Auto-detect user region & currency in background
   useEffect(() => {
@@ -38,6 +39,27 @@ export default function RazorpayCheckoutModal({
       if (detected) setCurrency(detected);
     });
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setShowExitWarning(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        if (showExitWarning) {
+          setShowExitWarning(false);
+        } else if (!loading) {
+          setShowExitWarning(true);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, showExitWarning, loading]);
 
   if (!isOpen) return null;
 
@@ -131,82 +153,147 @@ export default function RazorpayCheckoutModal({
     }
   };
 
+  const handleAttemptClose = () => {
+    if (loading) return;
+    setShowExitWarning(true);
+  };
+
+  const handleCancelExit = () => {
+    setShowExitWarning(false);
+  };
+
+  const handleConfirmExit = () => {
+    setShowExitWarning(false);
+    onClose();
+  };
+
+  const personName = pagePayload?.name?.trim() || "";
+  const titleName = personName ? `${personName}’s` : "Their";
+
   return (
-    <div className="checkout-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="checkout-modal-card" onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          className="checkout-close-btn"
-          onClick={onClose}
-          aria-label="Close checkout modal"
-          disabled={loading}
-        >
-          ✕
-        </button>
-
-        <div className="checkout-header">
-          <span className="checkout-icon">✨🎂💌</span>
-          <h2 className="checkout-title">Unlock {pagePayload.name || "Their"} Celebration</h2>
-          <p className="checkout-sub">
-            Publish this interactive celebration page and receive your official shareable link.
-          </p>
-        </div>
-
-        {/* Dynamic Month Paper Coupon with auto-detected currency & seasonal quote */}
-        <PaperOfferCoupon
-          currency={currency}
-        />
-
-        {/* Feature Highlights (without any lifetime reference) */}
-        <ul className="checkout-features-list">
-          <li>
-            <span className="feature-check">✓</span>
-            <span><strong>Private &amp; Secure:</strong> 100% ad-free, personalized interactive surprise.</span>
-          </li>
-          <li>
-            <span className="feature-check">✓</span>
-            <span><strong>Interactive Magic:</strong> Candle blowing, star fireworks, 7-photo carousel &amp; song.</span>
-          </li>
-          <li>
-            <span className="feature-check">✓</span>
-            <span><strong>1-Click WhatsApp Share:</strong> Pre-filled surprise greeting message ready to send.</span>
-          </li>
-        </ul>
-
-        {errorMsg && (
-          <div className="checkout-error-pill" role="alert">
-            <span>⚠️ {errorMsg}</span>
-          </div>
-        )}
-
-        {/* CTA Button */}
-        <div className="checkout-actions">
+    <>
+      <div className="checkout-modal-overlay" onClick={handleAttemptClose} role="dialog" aria-modal="true">
+        <div className="checkout-modal-card" onClick={(e) => e.stopPropagation()}>
           <button
             type="button"
-            className="checkout-pay-btn"
-            onClick={handleInitiatePayment}
+            className="checkout-close-btn"
+            onClick={handleAttemptClose}
+            aria-label="Close checkout modal"
             disabled={loading}
           >
-            {loading ? (
-              <>
-                <span className="checkout-spinner" />
-                <span>Opening Secure Checkout...</span>
-              </>
-            ) : (
-              <>
-                <span>Pay {pricing.displayPrice} &amp; Unlock Official Link</span>
-                <span className="pay-arrow">→</span>
-              </>
-            )}
+            ✕
           </button>
 
-          <div className="checkout-trust-badge">
-            <span>🔒 Secured by Razorpay</span>
-            <span>•</span>
-            <span>{currency === "INR" ? "UPI, GPay, PhonePe & Cards" : "Cards, NetBanking & Digital Wallets"}</span>
+          <div className="checkout-header">
+            <h2 className="checkout-title">Unlock {pagePayload.name || "Their"} Celebration</h2>
+            <p className="checkout-sub">
+              Publish this interactive celebration page and receive your official shareable link.
+            </p>
+          </div>
+
+          {/* Dynamic Month Paper Coupon with auto-detected currency & seasonal quote */}
+          <PaperOfferCoupon
+            currency={currency}
+          />
+
+          {/* Feature Highlights (without any lifetime reference) */}
+          <ul className="checkout-features-list">
+            <li>
+              <span className="feature-check">✓</span>
+              <span><strong>Private &amp; Secure:</strong> 100% ad-free, personalized interactive surprise.</span>
+            </li>
+            <li>
+              <span className="feature-check">✓</span>
+              <span><strong>Interactive Magic:</strong> Candle blowing, star fireworks, 7-photo carousel &amp; song.</span>
+            </li>
+            <li>
+              <span className="feature-check">✓</span>
+              <span><strong>1-Click WhatsApp Share:</strong> Pre-filled surprise greeting message ready to send.</span>
+            </li>
+          </ul>
+
+          {errorMsg && (
+            <div className="checkout-error-pill" role="alert">
+              <span>⚠️ {errorMsg}</span>
+            </div>
+          )}
+
+          {/* CTA Button */}
+          <div className="checkout-actions">
+            <button
+              type="button"
+              className="checkout-pay-btn"
+              onClick={handleInitiatePayment}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="checkout-spinner" />
+                  <span>Opening Secure Checkout...</span>
+                </>
+              ) : (
+                <>
+                  <span>Pay {pricing.displayPrice} &amp; Unlock Official Link</span>
+                  <span className="pay-arrow">→</span>
+                </>
+              )}
+            </button>
+
+            <div className="checkout-trust-badge">
+              <span>🔒 Secured by Razorpay</span>
+              <span>•</span>
+              <span>{currency === "INR" ? "UPI, GPay, PhonePe & Cards" : "Cards, NetBanking & Digital Wallets"}</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Retention / Exit Intent Notification Box / Bottom Sheet */}
+      {showExitWarning && (
+        <div
+          className="checkout-exit-overlay"
+          onClick={handleCancelExit}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm exit"
+        >
+          <div
+            className="checkout-exit-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="exit-warning-emoji" aria-hidden="true">
+              🥺
+            </div>
+
+            <h3 className="exit-warning-title">
+              Wait — {titleName} surprise isn’t saved yet
+            </h3>
+
+            <p className="exit-warning-sub">
+              The cake, the balloons, your letter — everything you just made lives
+              only on this screen right now. One step secures it forever.
+            </p>
+
+            <div className="exit-warning-actions">
+              <button
+                type="button"
+                className="exit-warning-btn-primary"
+                onClick={handleCancelExit}
+              >
+                Finish the surprise 💛
+              </button>
+
+              <button
+                type="button"
+                className="exit-warning-btn-secondary"
+                onClick={handleConfirmExit}
+              >
+                I’ll let it go
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

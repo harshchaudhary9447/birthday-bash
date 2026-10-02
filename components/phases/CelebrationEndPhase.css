@@ -1,0 +1,195 @@
+/* CelebrationEndPhase.css - Grand Finale Celebration Screen matching SS2 & SS3 */
+
+.celebration-end-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: max(78px, 9vh) 20px 48px;
+  background: radial-gradient(circle at 50% 32%, #3a1a29 0%, #220d18 55%, #13060d 100%);
+  color: #fff;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.celebration-ambient-glow {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(85vw, 550px);
+  height: min(85vw, 550px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 107, 139, 0.24) 0%, rgba(255, 190, 59, 0.14) 45%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.celebration-confetti-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.celebration-confetti {
+  position: absolute;
+  opacity: 0.88;
+  animation: celebrationConfettiFloat 4s ease-in-out infinite alternate;
+}
+
+.celebration-confetti.piece-circle {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.celebration-confetti.piece-square {
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.celebration-confetti.piece-star {
+  width: 11px;
+  height: 11px;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+@keyframes celebrationConfettiFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-18px) rotate(28deg);
+  }
+}
+
+.celebration-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 580px;
+  width: 100%;
+  margin: auto;
+}
+
+.celebration-title-group {
+  margin-bottom: 8px;
+}
+
+.celebration-heading {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: clamp(32px, 5.5vw, 48px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 0 4px 22px rgba(0, 0, 0, 0.55);
+}
+
+.celebration-name-script {
+  font-family: 'Caveat', 'Brush Script MT', 'Segoe Script', cursive;
+  font-size: clamp(38px, 6.8vw, 54px);
+  font-weight: 700;
+  color: #ffc83b;
+  text-shadow: 0 4px 24px rgba(255, 200, 59, 0.5);
+  margin-top: 4px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.celebration-cat-wrapper {
+  position: relative;
+  margin: 8px 0 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.celebration-cat-img {
+  width: min(280px, 70vw);
+  max-height: 310px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 24px rgba(255, 140, 170, 0.22));
+  animation: celebrationCatBob 3.2s ease-in-out infinite;
+}
+
+@keyframes celebrationCatBob {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(1.2deg);
+  }
+}
+
+.celebration-made-with-love {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 230, 238, 0.9);
+  margin: 4px 0 22px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  letter-spacing: 0.02em;
+}
+
+.celebration-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+.celebration-share-btn {
+  width: 100%;
+  margin: 0 !important;
+  padding: 14px 24px !important;
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  justify-content: center !important;
+}
+
+.celebration-replay-btn {
+  width: 100%;
+  margin: 0 !important;
+  padding: 13px 24px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  white-space: nowrap !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 600px) {
+  .celebration-end-page {
+    padding: max(72px, 8vh) 16px 36px;
+  }
+  .celebration-cat-img {
+    width: min(220px, 62vw);
+    max-height: 240px;
+  }
+  .celebration-made-with-love {
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+}

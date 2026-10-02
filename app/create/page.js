@@ -519,10 +519,13 @@ export default function BirthdayCreateWizard() {
 
       {/* Header */}
       <header className="wizard-header">
-        <Link href="/" className="wizard-back-home">
+        <Link href="/" className="wizard-back-home" title="Back to Home">
           ← Back
         </Link>
-        <div className="wizard-brand-tag">✨ Magic Moments Creator</div>
+        <div className="wizard-brand-tag">
+          <span className="wizard-brand-full">✨ Magic Moments Creator</span>
+          <span className="wizard-brand-short">✨ Magic Moments</span>
+        </div>
         <div className="wizard-header-actions">
           {isHydrated && hasDraftData && step < 6 && (
             <>
@@ -535,7 +538,8 @@ export default function BirthdayCreateWizard() {
                 onClick={handleResetDraft}
                 title="Clear all inputs and start over"
               >
-                Clear Form ↺
+                <span className="reset-draft-text-full">Clear Form ↺</span>
+                <span className="reset-draft-text-short">Clear ↺</span>
               </button>
             </>
           )}
@@ -1082,28 +1086,14 @@ export default function BirthdayCreateWizard() {
                 Next Step →
               </button>
             ) : (
-              <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
-                <button
-                  type="button"
-                  className={hasSeenPreview ? "btn-wizard-prev" : "btn-wizard-next"}
-                  onClick={handleStartLocalPreview}
-                  disabled={!canGoNext() || loading}
-                  style={{ margin: 0 }}
-                >
-                  {hasSeenPreview ? "Preview Again 👀" : "Preview Experience 👀"}
-                </button>
-                {hasSeenPreview && (
-                  <button
-                    type="button"
-                    className="btn-wizard-next"
-                    onClick={handleOpenCheckout}
-                    disabled={!canGoNext() || loading}
-                    style={{ margin: 0 }}
-                  >
-                    Unlock Link 🚀
-                  </button>
-                )}
-              </div>
+              <button
+                type="button"
+                className="btn-wizard-next"
+                onClick={handleStartLocalPreview}
+                disabled={!canGoNext() || loading}
+              >
+                {hasSeenPreview ? "Preview Again 👀" : "Preview Experience 👀"}
+              </button>
             )}
           </div>
         )}

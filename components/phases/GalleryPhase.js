@@ -1,4 +1,4 @@
-export default function GalleryPhase({ person, gallery, onReplay, onShare }) {
+export default function GalleryPhase({ person, gallery }) {
   return (
     <section className="gallery-page">
       <span className="script">little moments, big love</span>
@@ -23,18 +23,6 @@ export default function GalleryPhase({ person, gallery, onReplay, onShare }) {
         <span className="gallery-side-border gallery-side-border-right" />
       </div>
       <p>Here&apos;s to every memory behind the smile.</p>
-      <div className="gallery-actions">
-        {onShare && (
-          <button type="button" className="share-link-btn" onClick={onShare}>
-            Send the link to your loved one 💌
-          </button>
-        )}
-        {onReplay && (
-          <button type="button" className="replay-btn" onClick={onReplay}>
-            Celebrate Again <span>↺</span>
-          </button>
-        )}
-      </div>
     </section>
   );
 }
